@@ -1,7 +1,8 @@
+'use client'
 import { useState } from "react";
-import { auth, signInWithEmailAndPassword } from "../../firebase/firebaseConfig";
+import { auth, signInWithEmailAndPassword, googleProvider, signInWithPopup } from "../../firebase/firebaseConfig";
 
-export default function LoginForm() {
+function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -13,6 +14,15 @@ export default function LoginForm() {
       alert("Login successful!");
     } catch (err) {
       setError("Failed to login. Please check your credentials.");
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      await signInWithPopup(auth, googleProvider);
+      alert("Login with Google successful!");
+    } catch (err) {
+      setError("Failed to login with Google.");
     }
   };
 
@@ -36,6 +46,11 @@ export default function LoginForm() {
       <button type="submit" className="p-2 bg-blue-500 text-white rounded">
         Login
       </button>
+      <button type="button" onClick={handleGoogleLogin} className="p-2 bg-red-500 text-white rounded">
+        Login with Google
+      </button>
     </form>
   );
 }
+
+export default LoginForm;

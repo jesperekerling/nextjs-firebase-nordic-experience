@@ -1,12 +1,9 @@
-'use client'
-import React, { useEffect, useState } from "react";
+import React from "react";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { fetchPackages } from "../utils/fetchPackages"; // Adjust the path as needed
-import { DocumentData } from "firebase/firestore";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -19,36 +16,26 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
-
+export const metadata: Metadata = {
+  title: "Nordic Experiences",
+  description: "Explore the best experiences in the Nordic region.",
+};
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [packages, setPackages] = useState<DocumentData[]>([]);
-
-  useEffect(() => {
-    async function loadPackages() {
-      const packagesList = await fetchPackages();
-      setPackages(packagesList);
-    }
-    loadPackages();
-  }, []);
-
   return (
     <html lang="en">
+      <head>
+        <meta name="description" content={metadata.description ?? "Default description"} />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Header />
-        <main>
-          <h1>Packages</h1>
-          <ul>
-            {packages.map((pkg, index) => (
-              <li key={index}>{JSON.stringify(pkg)}</li>
-            ))}
-          </ul>
+        <main className="mx-auto max-w-screen-2xl">
           {children}
         </main>
         <Footer />
