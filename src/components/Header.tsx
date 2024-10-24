@@ -56,12 +56,15 @@ function Header() {
           </li>
         </ul>
       </nav>
-      <Link href="/login">Log in</Link>
-            {user ? (
-              <span>Welcome, {user.displayName || user.email}</span>
-            ) : (
-              <Link href="/login">Log in</Link>
-            )}
+
+      {user ? (
+        <span className='hidden md:inline-block'>
+          Welcome, {user.displayName || user.email}
+          <Link href="/logout" className='ml-5'>Log out</Link>
+        </span>
+      ) : (
+        <Link href="/login">Log in</Link>
+      )}
 
     </header>
   );
