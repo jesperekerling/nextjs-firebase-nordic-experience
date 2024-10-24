@@ -1,7 +1,10 @@
 import Link from 'next/link';
 import React from 'react';
+import { useAuth } from '../context/AuthContext';
 
 function Header() {
+  const { user } = useAuth();
+
   return (
     <header className='p-5 bg-secondary flex'>
       <Link href="/" className='flex'>
@@ -54,6 +57,12 @@ function Header() {
         </ul>
       </nav>
       <Link href="/login">Log in</Link>
+            {user ? (
+              <span>Welcome, {user.displayName || user.email}</span>
+            ) : (
+              <Link href="/login">Log in</Link>
+            )}
+
     </header>
   );
 }

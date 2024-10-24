@@ -1,9 +1,11 @@
+'use client'
 import React from "react";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { AuthProvider } from "../context/AuthContext";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -16,10 +18,7 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
-export const metadata: Metadata = {
-  title: "Nordic Experiences",
-  description: "Explore the best experiences in the Nordic region.",
-};
+
 
 export default function RootLayout({
   children,
@@ -29,16 +28,18 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <meta name="description" content={metadata.description ?? "Default description"} />
+        
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Header />
-        <main className="mx-auto max-w-screen-2xl">
-          {children}
-        </main>
-        <Footer />
+        <AuthProvider>
+          <Header />
+          <main className="mx-auto max-w-screen-2xl">
+            {children}
+          </main>
+          <Footer />
+        </AuthProvider>
       </body>
     </html>
   );
