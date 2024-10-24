@@ -1,6 +1,7 @@
 'use client'
 import { useState } from "react";
 import { auth, signInWithEmailAndPassword, googleProvider, signInWithPopup } from "../../firebase/firebaseConfig";
+import Link from "next/link";
 
 function LoginForm() {
   const [email, setEmail] = useState("");
@@ -30,7 +31,14 @@ function LoginForm() {
   return (
     <div>
       {isLoggedIn ? (
-        <p>You are logged in.</p>
+        <div className="text-center">
+          <p className="py-5">You are logged in.</p>
+          <p>
+            <Link href="/" className="py-5">
+              <button className="bg-primary text-white py-3 px-5 rounded-md">Browse Packages</button>
+            </Link>
+          </p>
+        </div>
       ) : (
         <form onSubmit={handleLogin} className="flex flex-col gap-4">
           <input

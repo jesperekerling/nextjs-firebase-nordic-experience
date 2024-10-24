@@ -19,8 +19,8 @@ function Header() {
         </svg>
         <span className='pl-3 font-bold text-primary'>Nordic<br />Experiences</span>
       </Link>
-      <nav className='flex-1 pl-10'>
-        <ul className='flex gap-5'>
+      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white md:relative md:bg-transparent">
+        <ul className="flex justify-around md:justify-start md:gap-5">
           <li>
             <Link href="/">
               <svg width="34" height="33" viewBox="0 0 34 33" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -58,12 +58,12 @@ function Header() {
       </nav>
 
       {user ? (
-        <span className='hidden md:inline-block'>
+        <span className='hidden md:inline-block md:flex-1 md:text-right'>
           Welcome, {user.displayName || user.email}
           <Link href="/logout" className='ml-5'>Log out</Link>
         </span>
       ) : (
-        <Link href="/login">Log in</Link>
+        <Link href="/login" className='flex-1 text-right'>Log in</Link>
       )}
 
     </header>

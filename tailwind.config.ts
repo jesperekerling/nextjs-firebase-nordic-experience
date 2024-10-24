@@ -14,6 +14,7 @@ const config: Config = {
         primary: "var(--primary)",
         secondary: "var(--secondary)",
         grey: "var(--grey)",
+        grey2: "var(--grey2)",
       },
     },
   },
