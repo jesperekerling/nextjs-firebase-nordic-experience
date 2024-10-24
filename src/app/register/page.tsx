@@ -8,8 +8,8 @@ const RegisterPage = () => {
       <h1 className="text-4xl mb-4">Register</h1>
       <RegisterForm />
 
-      <p>or</p>
-      <Link href="/login">Login to your account</Link>
+      <p className='pt-10'>or</p>
+      <Link href="/login" className='py-10'><span className='font-semibold'>Log in</span> to your account</Link>
     </div>
   );
 };
