@@ -3,18 +3,24 @@ import { useEffect, useState } from "react";
 import { useRouter } from 'next/navigation';
 import { useParams } from 'next/navigation';
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { db } from "../../../../../../firebase/firebaseConfig";
+import { db, storage } from "../../../../../../firebase/firebaseConfig";
+import { ref, getDownloadURL, listAll } from 'firebase/storage';
 import { Package } from "../../../../../types/package";
+import ImageSelectorModal from "@/components/ImageSelectorModal";
 
 const EditPackage = () => {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>(); // Ensure useParams is correctly typed
   const [pkg, setPkg] = useState<Package | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [imageList, setImageList] = useState<string[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const router = useRouter();
 
   useEffect(() => {
     getPackage();
+    fetchImages();
   }, []);
 
   const getPackage = async () => {
@@ -24,7 +30,7 @@ const EditPackage = () => {
         setLoading(false);
         return;
       }
-      const docRef = doc(db, "packages", Array.isArray(id) ? id[0] : id);
+      const docRef = doc(db, "packages", id);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         setPkg({ id: docSnap.id, ...docSnap.data() } as Package);
@@ -39,15 +45,23 @@ const EditPackage = () => {
     }
   };
 
+  const fetchImages = async () => {
+    try {
+      const imagesRef = ref(storage, 'images/');
+      const imagesList = await listAll(imagesRef);
+      const urls = await Promise.all(imagesList.items.map(item => getDownloadURL(item)));
+      setImageList(urls);
+    } catch (error) {
+      console.error("Error fetching images:", error);
+    }
+  };
+
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!pkg) return;
 
     try {
-      if (!id) {
-        throw new Error("Package ID is undefined.");
-      }
-      const docRef = doc(db, "packages", Array.isArray(id) ? id[0] : id);
+      const docRef = doc(db, "packages", id);
       await updateDoc(docRef, { ...pkg });
       router.push('/admin/packages');
     } catch (error) {
@@ -87,6 +101,24 @@ const EditPackage = () => {
     });
   };
 
+  const handleImageSelect = (url: string) => {
+    setPkg(prevPkg => {
+      if (!prevPkg) return null;
+      if (selectedImageIndex !== null) {
+        const updatedImages = [...(prevPkg.images || [])];
+        updatedImages[selectedImageIndex] = url;
+        return { ...prevPkg, images: updatedImages };
+      }
+      return prevPkg;
+    });
+    setIsModalOpen(false);
+  };
+
+  const handleOpenModal = (index: number) => {
+    setSelectedImageIndex(index);
+    setIsModalOpen(true);
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -100,77 +132,53 @@ const EditPackage = () => {
       <h1 className="text-2xl font-bold mb-4">Edit Package</h1>
       {pkg && (
         <form onSubmit={handleUpdate} className="flex flex-col gap-4">
-          <div>
-            <label htmlFor="name" className="block font-semibold">Name</label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={pkg.name}
-              onChange={handleChange}
-              className="p-2 border border-gray-300 rounded w-full"
-              placeholder="Name"
-            />
-          </div>
-          <div>
-            <label htmlFor="category" className="block font-semibold">Category</label>
-            <input
-              type="text"
-              id="category"
-              name="category"
-              value={pkg.category}
-              onChange={handleChange}
-              className="p-2 border border-gray-300 rounded w-full"
-              placeholder="Category"
-            />
-          </div>
-          <div>
-            <label htmlFor="city" className="block font-semibold">City</label>
-            <input
-              type="text"
-              id="city"
-              name="city"
-              value={pkg.city}
-              onChange={handleChange}
-              className="p-2 border border-gray-300 rounded w-full"
-              placeholder="City"
-            />
-          </div>
-          <div>
-            <label htmlFor="description" className="block font-semibold">Description</label>
-            <textarea
-              id="description"
-              name="description"
-              value={pkg.description}
-              onChange={handleChange}
-              className="p-2 border border-gray-300 rounded w-full"
-              placeholder="Description"
-            />
-          </div>
-          <div>
-            <label htmlFor="price" className="block font-semibold">Price</label>
-            <input
-              type="number"
-              id="price"
-              name="price"
-              value={pkg.price}
-              onChange={handleChange}
-              className="p-2 border border-gray-300 rounded w-full"
-              placeholder="Price"
-            />
-          </div>
-          <div>
-            <label htmlFor="days" className="block font-semibold">Days</label>
-            <input
-              type="number"
-              id="days"
-              name="days"
-              value={pkg.days}
-              onChange={handleChange}
-              className="p-2 border border-gray-300 rounded w-full"
-              placeholder="Days"
-            />
-          </div>
+          <input
+            type="text"
+            name="name"
+            value={pkg.name}
+            onChange={handleChange}
+            className="p-2 border border-gray-300 rounded"
+            placeholder="Name"
+          />
+          <input
+            type="text"
+            name="category"
+            value={pkg.category}
+            onChange={handleChange}
+            className="p-2 border border-gray-300 rounded"
+            placeholder="Category"
+          />
+          <input
+            type="text"
+            name="city"
+            value={pkg.city}
+            onChange={handleChange}
+            className="p-2 border border-gray-300 rounded"
+            placeholder="City"
+          />
+          <textarea
+            name="description"
+            value={pkg.description}
+            onChange={handleChange}
+            className="p-2 border border-gray-300 rounded"
+            placeholder="Description"
+          />
+          <input
+            type="number"
+            name="price"
+            value={pkg.price}
+            onChange={handleChange}
+            className="p-2 border border-gray-300 rounded"
+            placeholder="Price"
+          />
+          <input
+            type="number"
+            name="days"
+            value={pkg.days}
+            onChange={handleChange}
+            className="p-2 border border-gray-300 rounded"
+            placeholder="Days"
+          />
           <div className="mt-4">
             <h3 className="font-semibold">Activities:</h3>
             {pkg.activities.map((activity, index) => (
@@ -215,9 +223,36 @@ const EditPackage = () => {
               Add Activity
             </button>
           </div>
+          <div className="mt-4">
+            <h3 className="font-semibold">Images:</h3>
+            {pkg.images && pkg.images.map((url, index) => (
+              <div key={index} className="flex items-center gap-2 mb-2">
+                <input
+                  type="text"
+                  value={url}
+                  onChange={(e) => handleChange(e)}
+                  className="p-2 border border-gray-300 rounded flex-1"
+                />
+                <img src={url} alt={`Image ${index}`} className="w-16 h-16 object-cover" />
+                <button
+                  type="button"
+                  onClick={() => handleOpenModal(index)}
+                  className="p-2 bg-blue-500 text-white rounded"
+                >
+                  Edit
+                </button>
+              </div>
+            ))}
+          </div>
           <button type="submit" className="p-2 bg-blue-500 text-white rounded">Save</button>
         </form>
       )}
+      <ImageSelectorModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        imageList={imageList}
+        onSelectImage={handleImageSelect}
+      />
     </div>
   );
 };

@@ -11,4 +11,5 @@ export interface Package {
     description: string;
     time: string;
   }[];
+  images: string[];
 }
