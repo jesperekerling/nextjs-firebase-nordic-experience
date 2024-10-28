@@ -1,6 +1,5 @@
 'use client';
 import { useEffect, useState } from "react";
-import { useRouter } from 'next/navigation';
 import { useParams } from 'next/navigation';
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../../../firebase/firebaseConfig";
@@ -11,7 +10,6 @@ const PackageDetail = () => {
   const [pkg, setPkg] = useState<Package | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
 
   useEffect(() => {
     getPackage();
@@ -49,7 +47,9 @@ const PackageDetail = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">{pkg?.city}</h1>
+      <h1 className="text-2xl font-bold mb-4">{pkg?.name}</h1>
+      <p className="text-gray-500">Category: {pkg?.category}</p>
+      <p className="text-gray-500">City: {pkg?.city}</p>
       <p>{pkg?.description}</p>
       <p className="text-gray-500">Price: ${pkg?.price}</p>
       <p className="text-gray-500">Days: {pkg?.days}</p>

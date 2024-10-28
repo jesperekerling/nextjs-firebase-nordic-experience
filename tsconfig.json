@@ -1,6 +1,10 @@
 {
   "compilerOptions": {
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -18,9 +22,25 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
-    }
+      "@/*": [
+        "./src/*"
+      ]
+    },
+    "target": "ES2020", // Updated target to ES2020 for better compatibility
+    "allowSyntheticDefaultImports": true, // Ensure synthetic default imports are allowed
+    "forceConsistentCasingInFileNames": true, // Enforce consistent casing in file names
+    "strictNullChecks": true, // Enable strict null checks
+    "noImplicitAny": true, // Enable no implicit any
+    "noUnusedLocals": true, // Enable no unused locals
+    "noUnusedParameters": true // Enable no unused parameters
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

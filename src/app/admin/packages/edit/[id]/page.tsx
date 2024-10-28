@@ -19,6 +19,11 @@ const EditPackage = () => {
 
   const getPackage = async () => {
     try {
+      if (!id) {
+        setError("Invalid package ID.");
+        setLoading(false);
+        return;
+      }
       const docRef = doc(db, "packages", Array.isArray(id) ? id[0] : id);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
@@ -39,6 +44,9 @@ const EditPackage = () => {
     if (!pkg) return;
 
     try {
+      if (!id) {
+        throw new Error("Package ID is undefined.");
+      }
       const docRef = doc(db, "packages", Array.isArray(id) ? id[0] : id);
       await updateDoc(docRef, { ...pkg });
       router.push('/admin/packages');
