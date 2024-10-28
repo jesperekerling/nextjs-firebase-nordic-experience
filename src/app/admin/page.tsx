@@ -40,7 +40,9 @@ const AdminPackagesPage = () => {
         {packages && packages.length > 0 ? (
           packages.map(pkg => (
             <div key={pkg.id} className="border p-4 rounded shadow">
-              <h2 className="text-xl font-bold">{pkg.city}</h2>
+              <h2 className="text-xl font-bold">{pkg.name}</h2>
+              <p className="text-gray-500">Category: {pkg.category}</p>
+              <p className="text-gray-500">City: {pkg.city}</p>
               <p>{pkg.description}</p>
               <p className="text-gray-500">Price: ${pkg.price}</p>
               <p className="text-gray-500">Days: {pkg.days}</p>

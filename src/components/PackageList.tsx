@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { fetchPackages } from "../utils/fetchPackages";
 import { Package } from "../types/package";
+import Link from "next/link";
 
 const PackageList = () => {
   const [packages, setPackages] = useState<Package[]>([]);
@@ -37,26 +38,30 @@ const PackageList = () => {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {packages && packages.length > 0 ? (
         packages.map(pkg => (
-          <div key={pkg.id} className="border p-4 rounded shadow">
-            <h2 className="text-xl font-bold">{pkg.city}</h2>
-            <p>{pkg.description}</p>
-            <p className="text-gray-500">Price: ${pkg.price}</p>
-            <p className="text-gray-500">Days: {pkg.days}</p>
-            <div className="mt-2">
-              <h3 className="font-semibold">Activities:</h3>
-              <ul className="list-disc list-inside">
-                {pkg.activities && pkg.activities.length > 0 ? (
-                  pkg.activities.map((activity, index) => (
-                    <li key={index}>
-                      <strong>{activity.name}</strong>: {activity.description} ({activity.time})
-                    </li>
-                  ))
-                ) : (
-                  <li>No activities available.</li>
-                )}
-              </ul>
+          <Link href={`/package/${pkg.id}`} key={pkg.id}>
+            <div className="border p-4 rounded shadow">
+              <h2 className="text-xl font-bold">{pkg.name}</h2>
+              <p className="text-gray-500">Category: {pkg.category}</p>
+              <p className="text-gray-500">City: {pkg.city}</p>
+              <p>{pkg.description}</p>
+              <p className="text-gray-500">Price: ${pkg.price}</p>
+              <p className="text-gray-500">Days: {pkg.days}</p>
+              <div className="mt-2">
+                <h3 className="font-semibold">Activities:</h3>
+                <ul className="list-disc list-inside">
+                  {pkg.activities && pkg.activities.length > 0 ? (
+                    pkg.activities.map((activity, index) => (
+                      <li key={index}>
+                        <strong>{activity.name}</strong>: {activity.description} ({activity.time})
+                      </li>
+                    ))
+                  ) : (
+                    <li>No activities available.</li>
+                  )}
+                </ul>
+              </div>
             </div>
-          </div>
+          </Link>
         ))
       ) : (
         <div>No packages available.</div>
