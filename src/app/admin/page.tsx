@@ -1,53 +1,74 @@
-'use client'
-import React, { useState } from 'react';
+'use client';
+import { useEffect, useState } from "react";
+import { fetchPackages } from "../../utils/fetchPackages";
+import { Package } from "../../types/package";
+import Link from 'next/link';
 
-import { storage } from '../../../firebase/firebaseConfig';
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+const AdminPackagesPage = () => {
+  const [packages, setPackages] = useState<Package[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-function AddContent() {
-  const [image, setImage] = useState<File | null>(null);
-  const [progress, setProgress] = useState(0);
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  useEffect(() => {
+    getPackages();
+  }, []);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setImage(e.target.files[0]);
+  const getPackages = async () => {
+    try {
+      const packagesData = await fetchPackages();
+      setPackages(packagesData);
+    } catch (error) {
+      setError("Failed to fetch packages.");
+      console.error("Error fetching packages:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleUpload = () => {
-    if (!image) return;
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
-    const storageRef = ref(storage, `images/${image.name}`);
-    const uploadTask = uploadBytesResumable(storageRef, image);
-
-    uploadTask.on(
-      'state_changed',
-      (snapshot) => {
-        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        setProgress(progress);
-      },
-      (error) => {
-        console.error('Upload failed', error);
-      },
-      () => {
-        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          setImageUrl(downloadURL);
-          alert('Upload successful!');
-        });
-      }
-    );
-  };
+  if (error) {
+    return <div>{error}</div>;
+  }
 
   return (
-    <div>
-      <h1>Upload Image</h1>
-      <input type="file" onChange={handleImageChange} />
-      <button onClick={handleUpload}>Upload</button>
-      <progress value={progress} max="100" />
-      {imageUrl && <img src={imageUrl} alt="Uploaded" />}
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Admin Packages</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {packages && packages.length > 0 ? (
+          packages.map(pkg => (
+            <div key={pkg.id} className="border p-4 rounded shadow">
+              <h2 className="text-xl font-bold">{pkg.city}</h2>
+              <p>{pkg.description}</p>
+              <p className="text-gray-500">Price: ${pkg.price}</p>
+              <p className="text-gray-500">Days: {pkg.days}</p>
+              <div className="mt-2">
+                <h3 className="font-semibold">Activities:</h3>
+                <ul className="list-disc list-inside">
+                  {pkg.activities && pkg.activities.length > 0 ? (
+                    pkg.activities.map((activity, index) => (
+                      <li key={index}>
+                        <strong>{activity.name}</strong>: {activity.description} ({activity.time})
+                      </li>
+                    ))
+                  ) : (
+                    <li>No activities available.</li>
+                  )}
+                </ul>
+              </div>
+              <Link href={`/admin/packages/edit/${pkg.id}`}>
+                <button className="mt-4 p-2 bg-blue-500 text-white rounded">Edit</button>
+              </Link>
+            </div>
+          ))
+        ) : (
+          <div>No packages available.</div>
+        )}
+      </div>
     </div>
   );
-}
+};
 
-export default AddContent;
+export default AdminPackagesPage;

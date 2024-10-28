@@ -3,6 +3,7 @@ import { useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import Modal from "../components/Modal"; // Import the Modal component
+import PackageList from "../components/PackageList"; // Import the PackageList component
 
 const LoginForm = dynamic(() => import("../components/LoginForm"), { ssr: false });
 const RegisterForm = dynamic(() => import("../components/RegisterForm"), { ssr: false });
@@ -31,6 +32,9 @@ export default function Home() {
               Learn more
             </button>
           </p>
+        </section>
+        <section className="mt-8">
+          <PackageList />
         </section>
       </main>
 
