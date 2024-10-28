@@ -24,22 +24,30 @@ const AdminPackagesPage = () => {
       setLoading(false);
     }
   };
-
+  
   if (loading) {
     return <div>Loading...</div>;
   }
-
+  
   if (error) {
     return <div>{error}</div>;
   }
-
+  
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Admin Packages</h1>
+      <p className="pb-10">
+        <Link href="/admin/add-images">
+          Upload new images
+        </Link>
+      </p>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {packages && packages.length > 0 ? (
           packages.map(pkg => (
             <div key={pkg.id} className="border p-4 rounded shadow">
+              {pkg.images && pkg.images.length > 0 && (
+                <img src={pkg.images[0]} alt="Package Image" className="w-full h-1/3 object-cover mb-4 rounded" />
+              )}
               <h2 className="text-xl font-bold">{pkg.name}</h2>
               <p className="text-gray-500">Category: {pkg.category}</p>
               <p className="text-gray-500">City: {pkg.city}</p>

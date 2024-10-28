@@ -40,7 +40,10 @@ const PackageList = () => {
         packages.map(pkg => (
           <Link href={`/package/${pkg.id}`} key={pkg.id}>
             <div className="border p-4 rounded shadow">
-              <h2 className="text-xl font-bold">{pkg.name}</h2>
+              {pkg.images && pkg.images.length > 0 && (
+                <img src={pkg.images[0]} alt={`Image for ${pkg.name}`} className="w-full h-48 object-cover mt-2 rounded" />
+              )}
+              <h2 className="text-xl font-bold py-3">{pkg.name}</h2>
               <p className="text-gray-500">Category: {pkg.category}</p>
               <p className="text-gray-500">City: {pkg.city}</p>
               <p>{pkg.description}</p>
