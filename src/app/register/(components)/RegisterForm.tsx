@@ -1,7 +1,7 @@
 'use client'
 import { useState } from "react";
 import { useRouter } from 'next/navigation';
-import { auth, createUserWithEmailAndPassword, updateProfile } from "../../firebase/firebaseConfig";
+import { auth, createUserWithEmailAndPassword, updateProfile } from "../../../../firebase/firebaseConfig";
 
 const RegisterForm = () => {
   const [name, setName] = useState("");

@@ -1,8 +1,8 @@
 'use client'
 import { useState } from "react";
-import { auth, signInWithEmailAndPassword, googleProvider, signInWithPopup } from "../../firebase/firebaseConfig";
+import { auth, signInWithEmailAndPassword, googleProvider, signInWithPopup } from "../../../../firebase/firebaseConfig";
 import Link from "next/link";
-import { useAuth } from "../context/AuthContext"; // Import the useAuth hook
+import { useAuth } from "../../../context/AuthContext"; // Import the useAuth hook
 
 function LoginForm() {
   const { user } = useAuth(); // Get the current user from the useAuth hook

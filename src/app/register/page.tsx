@@ -1,6 +1,6 @@
 import React from 'react';
-import RegisterForm from '../../components/RegisterForm';
 import Link from 'next/link';
+import RegisterForm from './(components)/RegisterForm';
 
 const RegisterPage = () => {
   return (

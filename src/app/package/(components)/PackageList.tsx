@@ -1,38 +1,36 @@
-'use client';
-import { useEffect, useState } from "react";
-import { fetchPackages } from "../utils/fetchPackages";
-import { Package } from "../types/package";
+import { fetchPackages } from "../../../utils/fetchPackages";
+// import { Package } from "../types/package";
 import Link from "next/link";
 
-const PackageList = () => {
-  const [packages, setPackages] = useState<Package[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+const PackageList = async () => {
+  // const [packages, setPackages] = useState<Package[]>([]);
+  // const [loading, setLoading] = useState(true);
+  // const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    getPackages();
-  }, []);
+  // useEffect(() => {
+  //   getPackages();
+  // }, []);
 
-  const getPackages = async () => {
-    try {
-      const packagesData = await fetchPackages();
-      setPackages(packagesData);
-      console.log("Packages state:", packagesData);
-    } catch (error) {
-      setError("Failed to fetch packages.");
-      console.error("Error fetching packages:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const packages = await fetchPackages();
+  // const getPackages = async () => {
+  //   try {
+  //     setPackages(packagesData);
+  //     console.log("Packages state:", packagesData);
+  //   } catch (error) {
+  //     setError("Failed to fetch packages.");
+  //     console.error("Error fetching packages:", error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  // if (loading) {
+  //   return <div>Loading...</div>;
+  // }
 
-  if (error) {
-    return <div>{error}</div>;
-  }
+  // if (error) {
+  //   return <div>{error}</div>;
+  // }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -41,7 +39,7 @@ const PackageList = () => {
           <Link href={`/package/${pkg.id}`} key={pkg.id}>
             <div className="border p-4 rounded shadow">
               {pkg.images && pkg.images.length > 0 && (
-                <img src={pkg.images[0]} alt={`Image for ${pkg.name}`} className="w-full h-48 object-cover mt-2 rounded" />
+                <img src={pkg.images[0]} alt={`Image for ${pkg.name}`} className="hover:opacity-90 w-full h-48 object-cover mt-2 rounded" />
               )}
               <h2 className="text-xl font-bold py-3">{pkg.name}</h2>
               <p className="text-gray-500">Category: {pkg.category}</p>

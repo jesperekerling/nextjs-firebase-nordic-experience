@@ -1,6 +1,6 @@
 'use client'
 import React from 'react';
-import LoginForm from '../../components/LoginForm';
+import LoginForm from './(components)/LoginForm';
 import Link from 'next/link';
 import { useAuth } from '../../context/AuthContext'; // Adjust the path as needed
 
