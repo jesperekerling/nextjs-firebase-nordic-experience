@@ -1,44 +1,40 @@
-'use client';
-import { useEffect, useState } from "react";
-import { useParams } from 'next/navigation';
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, collection, getDocs } from "firebase/firestore";
 import { db } from "../../../../firebase/firebaseConfig";
 import { Package } from "@/types/package";
+import PackageDetailClient from './PackageDetailClient';
 
-const PackageDetail = () => {
-  const { id } = useParams();
-  const [pkg, setPkg] = useState<Package | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+interface PackageDetailProps {
+  params: { id: string };
+  searchParams: { user?: string };
+}
 
-  useEffect(() => {
-    getPackage();
-  }, []);
+export async function generateStaticParams() {
+  // Fetch all package IDs from Firestore
+  const packagesSnapshot = await getDocs(collection(db, 'packages'));
+  const paths = packagesSnapshot.docs.map(doc => ({
+    id: doc.id,
+  }));
 
-  const getPackage = async () => {
-    try {
-      if (typeof id !== 'string') {
-        setError("Invalid package ID.");
-        setLoading(false);
-        return;
-      }
-      const docRef = doc(db, "packages", id as string);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        setPkg({ id: docSnap.id, ...docSnap.data() } as Package);
-      } else {
-        setError("Package not found.");
-      }
-    } catch (error) {
-      setError("Failed to fetch package.");
-      console.error("Error fetching package:", error);
-    } finally {
-      setLoading(false);
+  return paths;
+}
+
+const PackageDetail = async ({ params }: PackageDetailProps) => {
+  const { id } = await params;
+
+  let pkg: Package | null = null;
+  let error: string | null = null;
+
+  try {
+    const docRef = doc(db, "packages", id);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      pkg = { id: docSnap.id, ...docSnap.data() } as Package;
+    } else {
+      error = "Package not found.";
     }
-  };
-
-  if (loading) {
-    return <div>Loading...</div>;
+  } catch (err) {
+    error = "Failed to fetch package.";
+    console.error("Error fetching package:", err);
   }
 
   if (error) {
@@ -79,6 +75,7 @@ const PackageDetail = () => {
           )}
         </ul>
       </div>
+      {pkg && <PackageDetailClient pkgId={pkg.id} />}
     </div>
   );
 };
