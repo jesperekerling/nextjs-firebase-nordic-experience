@@ -3,11 +3,13 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useParams } from 'next/navigation';
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { db, storage } from "../../../../../../firebase/firebaseConfig";
+import { db, storage, auth } from "../../../../../../firebase/firebaseConfig";
 import { ref, uploadBytesResumable, getDownloadURL, listAll } from 'firebase/storage';
 import { Package } from "../../../../../types/package";
 import ImageSelectorModal from "@/components/ImageSelectorModal";
+import { onAuthStateChanged } from "firebase/auth";
 import Link from 'next/link';
+import { User } from "firebase/auth";
 
 const EditPackage = () => {
   const { id } = useParams<{ id: string }>(); // Ensure useParams is correctly typed
@@ -19,11 +21,24 @@ const EditPackage = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [newImage, setNewImage] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
+  
+  const [, setUser] = useState<User | null>(null);
   const router = useRouter();
 
   useEffect(() => {
-    getPackage();
-    fetchImages();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser(user);
+        getPackage();
+        fetchImages();
+      } else {
+        setUser(null);
+        setLoading(false);
+        setError("User not authenticated.");
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const getPackage = async () => {
@@ -189,7 +204,6 @@ const EditPackage = () => {
             value={pkg.name}
             onChange={handleChange}
             className="p-2 border border-gray-300 rounded"
-            placeholder="Name"
           />
           <input
             type="text"
@@ -197,7 +211,6 @@ const EditPackage = () => {
             value={pkg.category}
             onChange={handleChange}
             className="p-2 border border-gray-300 rounded"
-            placeholder="Category"
           />
           <input
             type="text"
@@ -205,14 +218,12 @@ const EditPackage = () => {
             value={pkg.city}
             onChange={handleChange}
             className="p-2 border border-gray-300 rounded"
-            placeholder="City"
           />
           <textarea
             name="description"
             value={pkg.description}
             onChange={handleChange}
             className="p-2 border border-gray-300 rounded"
-            placeholder="Description"
           />
           <input
             type="number"
@@ -220,7 +231,6 @@ const EditPackage = () => {
             value={pkg.price}
             onChange={handleChange}
             className="p-2 border border-gray-300 rounded"
-            placeholder="Price"
           />
           <input
             type="number"
@@ -228,7 +238,6 @@ const EditPackage = () => {
             value={pkg.days}
             onChange={handleChange}
             className="p-2 border border-gray-300 rounded"
-            placeholder="Days"
           />
           <div className="mt-4">
             <h3 className="font-semibold">Activities:</h3>
