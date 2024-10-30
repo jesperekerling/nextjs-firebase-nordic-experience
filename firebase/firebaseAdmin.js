@@ -13,6 +13,24 @@ if (!getApps().length) {
 
 const auth = admin.auth();
 
+export const setCustomUserClaims = async (uid, claims) => {
+  try {
+    await auth.setCustomUserClaims(uid, claims);
+    console.log(`Custom claims set for user ${uid}`);
+  } catch (error) {
+    console.error('Error setting custom claims:', error);
+  }
+};
+
+export const removeCustomUserClaims = async (uid) => {
+  try {
+    await auth.setCustomUserClaims(uid, { admin: null });
+    console.log(`Custom claims removed for user ${uid}`);
+  } catch (error) {
+    console.error('Error removing custom claims:', error);
+  }
+};
+
 export const verifyIdToken = async (token) => {
   try {
     const decodedToken = await auth.verifyIdToken(token);
@@ -22,3 +40,15 @@ export const verifyIdToken = async (token) => {
     return null;
   }
 };
+
+export const getUserClaims = async (uid) => {
+  try {
+    const user = await auth.getUser(uid);
+    return user.customClaims;
+  } catch (error) {
+    console.error('Error getting user claims:', error);
+    return null;
+  }
+};
+
+export default admin;
