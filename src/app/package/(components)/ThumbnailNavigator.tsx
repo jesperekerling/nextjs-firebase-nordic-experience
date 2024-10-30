@@ -1,4 +1,5 @@
 'use client';
+
 import React, { useState } from 'react';
 import Image from 'next/image';
 
@@ -6,29 +7,39 @@ interface ThumbnailNavigatorProps {
   images: string[];
   altText: string;
   isAboveFold?: boolean; // Add a new prop to indicate if the image is above the fold
+  category: string;
 }
 
-const ThumbnailNavigator: React.FC<ThumbnailNavigatorProps> = ({ images, altText, isAboveFold = false }) => {
+const ThumbnailNavigator: React.FC<ThumbnailNavigatorProps> = ({ images, altText, isAboveFold = false, category }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  const handleNextImage = () => {
+  const handleNextImage = (event: React.MouseEvent) => {
+    event.stopPropagation();
     setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
   };
 
-  const handlePrevImage = () => {
+  const handlePrevImage = (event: React.MouseEvent) => {
+    event.stopPropagation();
     setCurrentImageIndex((prevIndex) => (prevIndex - 1 + images.length) % images.length);
   };
 
+  const handleClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
+  };
+
   return (
-    <div className="relative">
+    <div className="relative" onClick={handleClick}>
       <Image
         src={images[currentImageIndex]}
         alt={altText}
         width={500}
         height={300}
         priority={isAboveFold} // Add the priority property
-        className="hover:opacity-90 w-full h-48 object-cover mt-2 rounded"
+        className="w-full h-48 object-cover mt-2 rounded-lg"
       />
+      <div className="absolute top-2 right-2 bg-black bg-opacity-50 text-white p-1 rounded">
+        {category}
+      </div>
       {images.length > 1 && (
         <>
           <button

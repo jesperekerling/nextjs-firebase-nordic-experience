@@ -75,7 +75,6 @@ const PackageDetail = async ({ params }: PackageDetailProps) => {
           )}
         </ul>
       </div>
-      {pkg && <PackageDetailClient pkgId={pkg.id} />}
     </div>
   );
 };

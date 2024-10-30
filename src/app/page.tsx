@@ -1,16 +1,16 @@
+import { fetchPackages } from "../utils/fetchPackages";
+import PackageList from "./package/(components)/PackageList";
+import FrontPageInfoModal from "../components/FrontPageInfoModal";
 
-// import dynamic from "next/dynamic";
+const FrontPage = async ({ searchParams }) => {
+  const resolvedSearchParams = await searchParams;
+  const selectedCategory = resolvedSearchParams?.category || null;
+  const packages = await fetchPackages();
 
-import FrontPageInfoModal from "@/components/FrontPageInfoModal";
-import PackageList from "./package/(components)/PackageList"; // Import the PackageList component
-
-// const LoginForm = dynamic(() => import("../components/LoginForm"), { ssr: false });
-// const RegisterForm = dynamic(() => import("../components/RegisterForm"), { ssr: false });
-
-export default function Home() {
-  // const [showLoginForm, setShowLoginForm] = useState(false);
-  // const [showRegisterForm, setShowRegisterForm] = useState(false);
-
+  // Filter packages by selected category
+  const filteredPackages = selectedCategory
+    ? packages.filter(pkg => pkg.category === selectedCategory)
+    : packages;
 
   return (
     <div className="items-center justify-items-center p-8 pb-20 font-[family-name:var(--font-geist-sans)]">
@@ -20,11 +20,13 @@ export default function Home() {
           <FrontPageInfoModal />
         </section>
         <section className="mt-8">
-          <PackageList />
+          <PackageList packages={filteredPackages} selectedCategory={selectedCategory} />
         </section>
       </main>
 
 
     </div>
   );
-}
+};
+
+export default FrontPage;

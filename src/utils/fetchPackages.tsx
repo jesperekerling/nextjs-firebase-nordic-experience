@@ -6,11 +6,13 @@ export async function fetchPackages(): Promise<Package[]> {
   try {
     const packagesCol = collection(db, "packages");
     const packagesSnapshot = await getDocs(packagesCol);
-    const packagesList = packagesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Package[];
-    console.log("Fetched packages:", packagesList); // Add this line to log the fetched packages
+    const packagesList = packagesSnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as Package[];
     return packagesList;
   } catch (error) {
     console.error("Error fetching packages:", error);
-    throw error;
+    return [];
   }
 }
