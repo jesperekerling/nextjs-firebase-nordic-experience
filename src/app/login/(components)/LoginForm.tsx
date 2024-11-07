@@ -55,10 +55,10 @@ function LoginForm() {
             className="p-2 border border-gray-300 rounded"
           />
           {error && <p className="text-red-500">{error}</p>}
-          <button type="submit" className="p-2 bg-blue-500 text-white rounded">
+          <button type="submit" className="p-2 bg-primary text-white rounded font-semibold">
             Login
           </button>
-          <button type="button" onClick={handleGoogleLogin} className="p-2 bg-red-500 text-white rounded">
+          <button type="button" onClick={handleGoogleLogin} className="p-2 bg-secondary text-black rounded font-semibold">
             Login with Google
           </button>
         </form>

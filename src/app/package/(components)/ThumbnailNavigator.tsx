@@ -35,9 +35,9 @@ const ThumbnailNavigator: React.FC<ThumbnailNavigatorProps> = ({ images, altText
         width={500}
         height={300}
         priority={isAboveFold} // Add the priority property
-        className="w-full h-48 object-cover mt-2 rounded-lg"
+        className="w-full h-48 lg:h-64 xl:h-80 object-cover mt-2 rounded-lg"
       />
-      <div className="absolute top-2 right-2 bg-black bg-opacity-50 text-white p-1 rounded">
+      <div className="absolute top-2 right-2 text-sm bg-primary font-semibold px-2 text-white p-1 rounded">
         {category}
       </div>
       {images.length > 1 && (

@@ -47,7 +47,7 @@ const RegisterForm = () => {
         className="p-2 border border-gray-300 rounded"
       />
       {error && <p className="text-red-500">{error}</p>}
-      <button type="submit" className="p-2 bg-blue-500 text-white rounded">
+      <button type="submit" className="p-2 bg-primary font-semibold text-white rounded">
         Register
       </button>
     </form>

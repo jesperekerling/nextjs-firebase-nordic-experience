@@ -8,50 +8,68 @@ import { Package } from "../../../types/package";
 interface PackageListProps {
   packages: Package[];
   selectedCategory: string | null;
+  selectedCity: string | null;
 }
 
-const PackageList: React.FC<PackageListProps> = ({ packages = [], selectedCategory: initialSelectedCategory }) => {
+const PackageList: React.FC<PackageListProps> = ({ packages = [], selectedCategory: initialSelectedCategory, selectedCity: initialSelectedCity }) => {
   const [filteredPackages, setFilteredPackages] = useState(packages);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(initialSelectedCategory);
+  const [selectedCity, setSelectedCity] = useState<string | null>(initialSelectedCity);
 
   useEffect(() => {
+    let filtered = packages;
     if (selectedCategory) {
-      setFilteredPackages(packages.filter(pkg => pkg.category === selectedCategory));
-    } else {
-      setFilteredPackages(packages);
+      filtered = filtered.filter(pkg => pkg.category === selectedCategory);
     }
-  }, [selectedCategory, packages]);
+    if (selectedCity) {
+      filtered = filtered.filter(pkg => pkg.city === selectedCity);
+    }
+    setFilteredPackages(filtered);
+  }, [selectedCategory, selectedCity, packages]);
 
-  // Extract unique categories
+  // Extract unique categories and cities
   const categories = Array.from(new Set(packages.map(pkg => pkg.category)));
+  const cities = Array.from(new Set(packages.map(pkg => pkg.city)));
 
   return (
-    <div>
-      <div className="max-w-72 md:w-full">
-        <div className="overflow-x-auto py-2">
-          <div className="inline-flex whitespace-nowrap">
+    <div className="md:w-full">
+      <div className="py-2 overflow-x-auto hide-scrollbar">
+        <div className="flex flex-nowrap">
+          <button
+            onClick={() => setSelectedCategory(null)}
+            className={`px-3 font-semibold text-sm py-2 m-2 rounded-lg ${selectedCategory === null ? 'bg-primary text-white' : 'bg-secondary text-gray-700'}`}
+          >
+            All
+          </button>
+          {categories.map((category) => (
             <button
-              onClick={() => setSelectedCategory(null)}
-              className={`inline-block px-4 py-2 m-2 rounded-lg ${selectedCategory === null ? 'bg-primary text-white' : 'bg-secondary text-gray-700'}`}
+              key={category}
+              onClick={() => setSelectedCategory(category)}
+              className={`px-3 font-semibold text-sm py-2 m-2 rounded-lg ${selectedCategory === category ? 'bg-primary text-white' : 'bg-secondary text-gray-700'}`}
             >
-              All
+              {category}
             </button>
-            {categories.map((category) => (
-              <button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
-                className={`inline-block px-4 py-2 m-2 rounded-lg ${selectedCategory === category ? 'bg-primary text-white' : 'bg-secondary text-gray-700'}`}
-              >
-                {category}
-              </button>
-            ))}
-          </div>
+          ))}
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="py-2">
+        <select
+          value={selectedCity || ''}
+          onChange={(e) => setSelectedCity(e.target.value || null)}
+          className="border-black rounded-md px-3 py-2 m-2 text-sm"
+        >
+          <option value="">All Cities</option>
+          {cities.map((city) => (
+            <option key={city} value={city}>
+              {city}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
         {filteredPackages && filteredPackages.length > 0 ? (
           filteredPackages.map((pkg, index) => (
-            <div className="relative p-4 rounded" key={pkg.id}>
+            <div className="relative rounded" key={pkg.id}>
               {pkg.images && pkg.images.length > 0 && (
                 <ThumbnailNavigator
                   images={pkg.images.map(url => url.startsWith('http') ? url : `/${url}`)}
