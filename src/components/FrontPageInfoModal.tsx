@@ -22,7 +22,7 @@ function FrontPageInfoModal() {
     <div>
         <p className="text-grey2 py-3">Ready to go packages</p>
     <p>
-      <button onClick={handleOpenModal} className="text-primary font-semibold">
+      <button onClick={handleOpenModal} className="text-primary font-semibold bg-primary px-5 py-2 text-xs text-white rounded-3xl hover:opacity-80">
         Learn more
       </button>
     </p>
