@@ -19,8 +19,8 @@ function Header() {
         </svg>
         <span className='pl-3 font-bold'>Nordic<br />Experiences</span>
       </Link>
-      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white md:relative md:bg-transparent">
-        <ul className="flex flex-wrap place-content-evenly md:justify-start md:gap-5 py-3 md:py-0">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white md:relative md:bg-transparent grow">
+        <ul className="flex flex-wrap place-content-evenly md:place-content-center md:text-center md:gap-5 py-3 md:py-0">
           <li className="w-1/4 md:w-auto">
             <Link href="/" className="hover:opacity-50 flex flex-col items-center md:inline">
               <svg width="34" height="33" viewBox="0 0 34 33" fill="none" xmlns="http://www.w3.org/2000/svg" className="md:inline block md:h-4 md:ml-3 h-10 text-center">
