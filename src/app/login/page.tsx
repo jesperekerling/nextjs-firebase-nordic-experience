@@ -9,7 +9,8 @@ const LoginPage = () => {
 
   return (
     <div className="flex flex-col items-center justify-center py-2">
-      <h1 className="text-4xl mb-4 font-bold">Login</h1>
+      <h1 className="text-2xl mb-4 font-bold">Login</h1>
+      
       <LoginForm />
 
       {!user && (
