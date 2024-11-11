@@ -44,13 +44,13 @@ const ThumbnailNavigator: React.FC<ThumbnailNavigatorProps> = ({ images, altText
         <>
           <button
             onClick={handlePrevImage}
-            className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full"
+            className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white py-3 px-4 rounded-full font-bold"
           >
             &lt;
           </button>
           <button
             onClick={handleNextImage}
-            className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full"
+            className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white py-3 px-4 rounded-full font-bold"
           >
             &gt;
           </button>

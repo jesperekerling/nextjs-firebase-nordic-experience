@@ -15,7 +15,7 @@ const FrontPage = async ({ searchParams }) => {
   });
 
   return (
-    <div className="p-4 md:p-5 pb-20 font-[family-name:var(--font-geist-sans)]">
+    <div className="pb-20 font-[family-name:var(--font-geist-sans)]">
       <section className="text-center">
         <h1 className="text-2xl font-bold">Packages</h1>
         <FrontPageInfoModal />

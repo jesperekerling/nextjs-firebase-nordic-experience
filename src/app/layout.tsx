@@ -35,7 +35,7 @@ export default function RootLayout({
       >
         <AuthProvider>
           <Header />
-          <main className="mx-auto max-w-screen-2xl min-h-96 md:p-10">
+          <main className="mx-auto max-w-screen-2xl min-h-96 md:p-10 p-4">
             {children}
           </main>
           <Footer />
