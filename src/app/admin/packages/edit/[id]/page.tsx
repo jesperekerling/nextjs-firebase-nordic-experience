@@ -81,7 +81,7 @@ const EditPackage = () => {
     try {
       const docRef = doc(db, "packages", id);
       await updateDoc(docRef, { ...pkg });
-      router.push('/admin/packages');
+      router.push('/admin/');
     } catch (error) {
       setError("Failed to update package.");
       console.error("Error updating package:", error);
