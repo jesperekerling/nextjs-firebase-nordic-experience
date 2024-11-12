@@ -1,5 +1,5 @@
 import React from 'react'
-import GMapsExample from '@/components/GoogleMapsExample'
+import GMapsExample from '@/components/GoogleMaps'
 
 function page() {
   return (
