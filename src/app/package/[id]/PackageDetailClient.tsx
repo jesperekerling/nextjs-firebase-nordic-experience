@@ -49,7 +49,7 @@ const PackageDetailClient: React.FC<PackageDetailClientProps> = ({ images }) => 
             height={500}
             width={500}
             alt={`Image ${index + 1}`}
-            className="object-cover aspect-square w-full h-full rounded cursor-pointer"
+            className="object-cover aspect-square w-full rounded cursor-pointer"
             onClick={() => handleOpenModal(index + 1)}
           />
         ))}
