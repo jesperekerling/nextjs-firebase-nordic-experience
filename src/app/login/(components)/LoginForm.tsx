@@ -45,14 +45,14 @@ function LoginForm() {
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="p-2 border border-gray-300 rounded"
+            className="p-2 border border-gray-300 rounded dark:text-black"
           />
           <input
             type="password"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="p-2 border border-gray-300 rounded"
+            className="p-2 border border-gray-300 rounded dark:text-black"
           />
           {error && <p className="text-red-500">{error}</p>}
           <button type="submit" className="p-2 bg-primary text-white rounded font-semibold">

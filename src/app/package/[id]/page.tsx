@@ -77,8 +77,8 @@ const PackageDetail = async ({ params }: PackageDetailProps) => {
       </div>
       <p className="my-5">
         <span className="bg-secondary text-black py-3 px-5 rounded-lg font-semibold">{pkg?.city}</span>
-        <span className="bg-secondary py-3 px-5 mx-4 rounded-lg font-semibold">{pkg?.category}</span>
-        <span className="bg-secondary py-3 px-5 rounded-lg my-5 font-semibold">{pkg?.days} days</span>
+        <span className="bg-secondary text-black py-3 px-5 mx-4 rounded-lg font-semibold">{pkg?.category}</span>
+        <span className="bg-secondary text-black py-3 px-5 rounded-lg my-5 font-semibold">{pkg?.days} days</span>
       </p>
       <div className="mt-2">
         <h2 className="font-semibold pt-5 pb-3 text-xl md:text-2xl">Activities</h2>

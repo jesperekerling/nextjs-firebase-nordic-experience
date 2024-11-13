@@ -56,7 +56,7 @@ const PackageList: React.FC<PackageListProps> = ({ packages = [], selectedCatego
         <select
           value={selectedCity || ''}
           onChange={(e) => setSelectedCity(e.target.value || null)}
-          className="border-black rounded-md px-3 py-2 m-2 text-sm"
+          className="border-black rounded-md px-3 py-2 m-2 text-sm text-black"
         >
           <option value="">All Cities</option>
           {cities.map((city) => (
@@ -80,9 +80,8 @@ const PackageList: React.FC<PackageListProps> = ({ packages = [], selectedCatego
               )}
               <Link href={`/package/${pkg.id}`} className="hover:opacity-65">
                 <h2 className="text-lg font-bold py-3">{pkg.name}</h2>
-                <p className="text-gray-500 text-sm"></p>
                 <p className="text-sm">{pkg.description}</p>
-                <p className="text-gray-500 text-sm">${pkg.price}/person - Days: {pkg.days}</p>
+                <p className="text-gray-500 text-sm dark:text-gray-400 pt-1">${pkg.price}/person - Days: {pkg.days}</p>
                 <div className="mt-2 text-xs">
                   <h3 className="font-semibold">Activities:</h3>
                   <ul className="list-disc list-inside">
