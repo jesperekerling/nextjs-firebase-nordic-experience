@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
+import { GoogleMap, Marker, useLoadScript } from '@react-google-maps/api';
 
 const containerStyle = {
   width: '100%',
@@ -14,6 +14,10 @@ interface GoogleMapsProps {
 }
 
 const GoogleMaps: React.FC<GoogleMapsProps> = ({ lat, lng }) => {
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
+  });
+
   const center = {
     lat,
     lng,
@@ -24,12 +28,18 @@ const GoogleMaps: React.FC<GoogleMapsProps> = ({ lat, lng }) => {
     return <div>Invalid location data</div>;
   }
 
+  if (loadError) {
+    return <div>Error loading Google Maps</div>;
+  }
+
+  if (!isLoaded) {
+    return <div>Loading...</div>;
+  }
+
   return (
-    <LoadScript googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string}>
-      <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={13}>
-        <Marker position={center} />
-      </GoogleMap>
-    </LoadScript>
+    <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={13}>
+      <Marker position={center} />
+    </GoogleMap>
   );
 };
 
