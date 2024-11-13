@@ -1,3 +1,5 @@
+import { GeoPoint } from "firebase/firestore";
+
 export interface Package {
   id: string;
   name: string;
@@ -12,4 +14,5 @@ export interface Package {
     time: string;
   }[];
   images: string[];
+  location: GeoPoint;
 }

@@ -1,10 +1,13 @@
-import React from 'react'
-import GMapsExample from '@/components/GoogleMaps'
+import React from 'react';
+import GMapsExample from '@/components/GoogleMaps';
 
-function page() {
+function Page() {
+  const defaultLat = 55.672112;
+  const defaultLng = 12.521130;
+
   return (
-    <GMapsExample />
-  )
+    <GMapsExample lat={defaultLat} lng={defaultLng} />
+  );
 }
 
-export default page
+export default Page;

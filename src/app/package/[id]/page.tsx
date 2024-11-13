@@ -3,6 +3,7 @@ import { db } from "../../../../firebase/firebaseConfig";
 import { Package } from "@/types/package";
 import PackageDetailClient from './PackageDetailClient';
 import Link from "next/link";
+import GoogleMaps from "@/components/GoogleMaps";
 
 interface PackageDetailProps {
   params: { id: string };
@@ -20,8 +21,7 @@ export async function generateStaticParams() {
 }
 
 const PackageDetail = async ({ params }: PackageDetailProps) => {
-  const resolvedParams = await params;
-  const { id } = resolvedParams;
+  const { id } = params;
 
   let pkg: Package | null = null;
   let error: string | null = null;
@@ -43,6 +43,20 @@ const PackageDetail = async ({ params }: PackageDetailProps) => {
     return <div>{error}</div>;
   }
 
+  const defaultLat = 55.672112;
+  const defaultLng = 12.521130;
+  const location = pkg?.location;
+
+  // Print the location value from the database
+  console.log("Location from database:", location);
+
+  const lat = location && location.length > 0 ? location[0].latitude : defaultLat;
+  const lng = location && location.length > 0 ? location[0].longitude : defaultLng;
+
+  // Print the converted latitude and longitude values
+  console.log("Converted latitude:", lat);
+  console.log("Converted longitude:", lng);
+
   return (
     <div>
       <Link href="/">
@@ -51,21 +65,15 @@ const PackageDetail = async ({ params }: PackageDetailProps) => {
         </button>
       </Link>
       <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold my-10">{pkg?.name}</h1>
-      {pkg?.images && pkg.images.length > 0 && (
-        <PackageDetailClient images={pkg.images} />
-      )}
+      {pkg?.images && pkg.images.length > 0 && <PackageDetailClient images={pkg.images} />}
       <p className="mt-5">
         <button className="bg-primary text-white px-4 py-3 rounded-lg w-full font-semibold hover:opacity-80">
           Book now
         </button>
       </p>
       <div className="flex py-5">
-        <p className="text-md md:text-lg flex-auto">
-          {pkg?.description}
-        </p>
-        <p className="text-black flex-auto text-right font-bold px-1">
-          ${pkg?.price} per person
-        </p>
+        <p className="text-md md:text-lg flex-auto">{pkg?.description}</p>
+        <p className="text-black flex-auto text-right font-bold px-1">${pkg?.price} per person</p>
       </div>
       <p className="my-5">
         <span className="bg-secondary text-black py-3 px-5 rounded-lg font-semibold">{pkg?.city}</span>
@@ -78,7 +86,9 @@ const PackageDetail = async ({ params }: PackageDetailProps) => {
           {pkg?.activities && pkg.activities.length > 0 ? (
             pkg.activities.map((activity, index) => (
               <li key={index} className="py-3">
-                <strong>{activity.name}</strong><br />{activity.description} ({activity.time})
+                <strong>{activity.name}</strong>
+                <br />
+                {activity.description} ({activity.time})
               </li>
             ))
           ) : (
@@ -86,6 +96,10 @@ const PackageDetail = async ({ params }: PackageDetailProps) => {
           )}
         </ul>
       </div>
+      <section>
+        <h2 className="font-semibold pt-5 pb-3 text-xl md:text-2xl">Location</h2>
+        <GoogleMaps lat={lat} lng={lng} />
+      </section>
     </div>
   );
 };
