@@ -9,7 +9,7 @@ import { Package } from "../../../../../types/package";
 import ImageSelectorModal from "@/components/ImageSelectorModal";
 import { onAuthStateChanged } from "firebase/auth";
 import Link from 'next/link';
-import { User } from "firebase/auth";
+import { User, GeoPoint } from "firebase/firestore";
 
 const EditPackage = () => {
   const { id } = useParams<{ id: string }>(); // Ensure useParams is correctly typed
@@ -51,7 +51,9 @@ const EditPackage = () => {
       const docRef = doc(db, "packages", id);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        setPkg({ id: docSnap.id, ...docSnap.data() } as Package);
+        const packageData = docSnap.data() as Package;
+        const location = packageData.location && packageData.location.length > 0 ? packageData.location[0] : { latitude: 0, longitude: 0 };
+        setPkg({ ...packageData, location });
       } else {
         setError("Package not found.");
       }
@@ -80,7 +82,10 @@ const EditPackage = () => {
 
     try {
       const docRef = doc(db, "packages", id);
-      await updateDoc(docRef, { ...pkg });
+      await updateDoc(docRef, { 
+        ...pkg,
+        location: [new GeoPoint(pkg.location.latitude, pkg.location.longitude)]
+      });
       router.push('/admin/');
     } catch (error) {
       setError("Failed to update package.");
@@ -91,6 +96,15 @@ const EditPackage = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setPkg(prevPkg => prevPkg ? { ...prevPkg, [name]: value } : null);
+  };
+
+  const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setPkg(prevPkg => {
+      if (!prevPkg) return null;
+      const updatedLocation = { ...prevPkg.location, [name]: parseFloat(value) };
+      return { ...prevPkg, location: updatedLocation };
+    });
   };
 
   const handleActivityChange = (index: number, e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -198,6 +212,7 @@ const EditPackage = () => {
       </p>
       {pkg && (
         <form onSubmit={handleUpdate} className="flex flex-col gap-4">
+          <label className="font-bold">Title</label>
           <input
             type="text"
             name="name"
@@ -205,6 +220,7 @@ const EditPackage = () => {
             onChange={handleChange}
             className="p-2 border border-gray-300 rounded"
           />
+          <label className="mt-4 font-bold">Category</label>
           <input
             type="text"
             name="category"
@@ -212,6 +228,7 @@ const EditPackage = () => {
             onChange={handleChange}
             className="p-2 border border-gray-300 rounded"
           />
+          <label className="mt-4 font-bold">City</label>
           <input
             type="text"
             name="city"
@@ -219,12 +236,14 @@ const EditPackage = () => {
             onChange={handleChange}
             className="p-2 border border-gray-300 rounded"
           />
+          <label className="mt-4 font-bold">Description</label>
           <textarea
             name="description"
             value={pkg.description}
             onChange={handleChange}
             className="p-2 border border-gray-300 rounded"
           />
+          <label className="mt-4 font-bold">Price and Days</label>
           <input
             type="number"
             name="price"
@@ -239,6 +258,25 @@ const EditPackage = () => {
             onChange={handleChange}
             className="p-2 border border-gray-300 rounded"
           />
+          <div className="mt-4">
+            <h3 className="font-semibold">Location:</h3>
+            <input
+              type="number"
+              name="latitude"
+              value={pkg.location?.latitude || ""}
+              onChange={handleLocationChange}
+              className="p-2 border border-gray-300 rounded mb-2"
+              placeholder="Latitude"
+            />
+            <input
+              type="number"
+              name="longitude"
+              value={pkg.location?.longitude || ""}
+              onChange={handleLocationChange}
+              className="p-2 border border-gray-300 rounded mb-2"
+              placeholder="Longitude"
+            />
+          </div>
           <div className="mt-4">
             <h3 className="font-semibold">Activities:</h3>
             {pkg.activities.map((activity, index) => (
