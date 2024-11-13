@@ -1,18 +1,21 @@
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../firebase/firebaseConfig";
-import { Package } from "../types/package";
+import { Package } from "@/types/package";
 
-export async function fetchPackages(): Promise<Package[]> {
-  try {
-    const packagesCol = collection(db, "packages");
-    const packagesSnapshot = await getDocs(packagesCol);
-    const packagesList = packagesSnapshot.docs.map((doc) => ({
+export const fetchPackages = async (): Promise<Package[]> => {
+  const packagesSnapshot = await getDocs(collection(db, 'packages'));
+  const packages: Package[] = packagesSnapshot.docs.map(doc => {
+    const data = doc.data();
+    const location = data.location;
+    const lat = location ? location.latitude : null;
+    const lng = location ? location.longitude : null;
+
+    return {
+      ...data,
       id: doc.id,
-      ...doc.data(),
-    })) as Package[];
-    return packagesList;
-  } catch (error) {
-    console.error("Error fetching packages:", error);
-    return [];
-  }
-}
+      location: { latitude: lat, longitude: lng },
+    } as Package;
+  });
+
+  return packages;
+};

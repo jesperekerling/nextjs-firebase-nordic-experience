@@ -23,7 +23,7 @@ const FrontPage = async ({ searchParams }) => {
       <section className="mt-8">
         <PackageList packages={filteredPackages} selectedCategory={selectedCategory} selectedCity={selectedCity} />
       </section>
-  </div>
+    </div>
   );
 };
 
