@@ -21,7 +21,7 @@ export async function generateStaticParams() {
 }
 
 const PackageDetail = async ({ params }: PackageDetailProps) => {
-  const { id } = params;
+  const { id } = await params;
 
   let pkg: Package | null = null;
   let error: string | null = null;

@@ -39,6 +39,7 @@ const PackageDetailClient: React.FC<PackageDetailClientProps> = ({ images }) => 
           height={1000}
           width={1000}
           onClick={() => handleOpenModal(0)}
+          priority={true}
         />
       </div>
       <div className="col-span-4 md:col-span-2 lg:col-span-2 grid grid-cols-2 gap-2">
@@ -51,6 +52,7 @@ const PackageDetailClient: React.FC<PackageDetailClientProps> = ({ images }) => 
             alt={`Image ${index + 1}`}
             className="object-cover aspect-square w-full rounded cursor-pointer"
             onClick={() => handleOpenModal(index + 1)}
+            priority={true}
           />
         ))}
       </div>
@@ -64,6 +66,7 @@ const PackageDetailClient: React.FC<PackageDetailClientProps> = ({ images }) => 
               width={800}
               height={600}
               className="w-full h-auto object-cover"
+              priority={true}
             />
             <button
               onClick={handlePrevImage}
