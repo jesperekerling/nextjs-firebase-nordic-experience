@@ -12,7 +12,7 @@ function HousingList() {
                 </Link>
             </p>
             <h1 className="text-2xl font-bold">Housing</h1>
-            <p className="text-grey2 py-3">Select a housing option from our list. (optional)</p>
+            <p className="text-grey2 dark:text-gray-200 py-3">Select a housing option from our list. (optional)</p>
 
         </section>
     </div>
