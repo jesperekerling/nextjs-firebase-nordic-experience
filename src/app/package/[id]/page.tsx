@@ -64,7 +64,7 @@ const PackageDetail = async ({ params }: PackageDetailProps) => {
           Back to packages
         </button>
       </Link>
-      <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold my-10">{pkg?.name}</h1>
+      <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold my-7 md:my-10">{pkg?.name}</h1>
       {pkg?.images && pkg.images.length > 0 && <PackageDetailClient images={pkg.images} />}
       <p className="mt-5">
         <button className="bg-primary text-white px-4 py-3 rounded-lg w-full font-semibold hover:opacity-80">

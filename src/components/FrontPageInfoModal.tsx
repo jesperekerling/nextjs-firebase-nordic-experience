@@ -28,8 +28,10 @@ function FrontPageInfoModal() {
     </p>
     
       <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
-        <h2 className="text-xl font-bold pb-4">Ready to go travel packages</h2>
-        <p>Discover a seamless travel app where you can easily book complete travel packages with activities, accommodation, and restaurants included. Customize your experience with carefully selected options for a stress-free and memorable vacation!</p>
+        <div className="p-10">
+          <h2 className="text-xl font-bold pb-4 dark:text-black">Ready to go travel packages</h2>
+          <p className="dark:text-black">Discover a seamless travel app where you can easily book complete travel packages with activities, accommodation, and restaurants included. Customize your experience with carefully selected options for a stress-free and memorable vacation!</p>
+        </div>
       </Modal>
     
     </div>

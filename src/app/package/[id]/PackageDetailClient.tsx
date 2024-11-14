@@ -30,27 +30,27 @@ const PackageDetailClient: React.FC<PackageDetailClientProps> = ({ images }) => 
   };
 
   return (
-    <div className="grid grid-cols-4 gap-2">
+    <div className="grid grid-cols-4 gap-2 md:gap-3">
       <div className="col-span-4 md:col-span-2 lg:col-span-2">
         <Image
           src={images[0]}
           alt={`Image 0`}
-          className="object-cover aspect-square w-full h-full rounded cursor-pointer"
+          className="object-cover aspect-video rounded cursor-pointer hover:opacity-70 h-full"
           height={1000}
           width={1000}
           onClick={() => handleOpenModal(0)}
           priority={true}
         />
       </div>
-      <div className="col-span-4 md:col-span-2 lg:col-span-2 grid grid-cols-2 gap-2">
+      <div className="col-span-4 md:col-span-2 lg:col-span-2 grid grid-cols-2 gap-2 md:gap-3 h-2/3">
         {images.slice(1, 5).map((url, index) => (
           <Image
             key={index + 1}
             src={url}
-            height={500}
+            height={500} 
             width={500}
             alt={`Image ${index + 1}`}
-            className="object-cover aspect-square w-full rounded cursor-pointer"
+            className="object-cover aspect-video w-full rounded cursor-pointer hover:opacity-70"
             onClick={() => handleOpenModal(index + 1)}
             priority={true}
           />
