@@ -15,4 +15,9 @@ export interface Package {
   }[];
   images: string[];
   location: GeoPoint;
+  availability: {
+    date: string;
+    tickets: number;
+  }[];
+  accommodations: string[]; // Array of accommodation IDs
 }

@@ -5,15 +5,15 @@ import { useParams } from 'next/navigation';
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db, storage, auth } from "../../../../../../firebase/firebaseConfig";
 import { ref, uploadBytesResumable, getDownloadURL, listAll } from 'firebase/storage';
-import { Package } from "../../../../../types/package";
+import { Housing } from "../../../../../types/housing";
 import ImageSelectorModal from "@/components/ImageSelectorModal";
 import { onAuthStateChanged } from "firebase/auth";
 import Link from 'next/link';
-import { User, GeoPoint } from "firebase/firestore";
+import { GeoPoint } from "firebase/firestore";
 
-const EditPackage = () => {
+const EditHousingPage = () => {
   const { id } = useParams<{ id: string }>(); // Ensure useParams is correctly typed
-  const [pkg, setPkg] = useState<Package | null>(null);
+  const [housing, setHousing] = useState<Housing | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [imageList, setImageList] = useState<string[]>([]);
@@ -21,17 +21,14 @@ const EditPackage = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [newImage, setNewImage] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [user, setUser] = useState<User | null>(null); // Define the user state
   const router = useRouter();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        setUser(user);
-        getPackage();
+        getHousing();
         fetchImages();
       } else {
-        setUser(null);
         setLoading(false);
         setError("User not authenticated.");
       }
@@ -40,23 +37,23 @@ const EditPackage = () => {
     return () => unsubscribe();
   }, []);
 
-  const getPackage = async () => {
+  const getHousing = async () => {
     try {
       if (!id) {
-        setError("Invalid package ID.");
+        setError("Invalid housing ID.");
         setLoading(false);
         return;
       }
-      const docRef = doc(db, "packages", id);
+      const docRef = doc(db, "housing", id);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        setPkg({ id: docSnap.id, ...docSnap.data() } as Package);
+        setHousing({ id: docSnap.id, ...docSnap.data() } as Housing);
       } else {
-        setError("Package not found.");
+        setError("Housing not found.");
       }
     } catch (error) {
-      setError("Failed to fetch package.");
-      console.error("Error fetching package:", error);
+      setError("Failed to fetch housing.");
+      console.error("Error fetching housing:", error);
     } finally {
       setLoading(false);
     }
@@ -64,7 +61,7 @@ const EditPackage = () => {
 
   const fetchImages = async () => {
     try {
-      const imagesRef = ref(storage, 'images/');
+      const imagesRef = ref(storage, 'housing-images/');
       const imagesList = await listAll(imagesRef);
       const urls = await Promise.all(imagesList.items.map(item => getDownloadURL(item)));
       setImageList(urls);
@@ -75,96 +72,70 @@ const EditPackage = () => {
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!pkg) return;
+    if (!housing) return;
 
     try {
-      const docRef = doc(db, "packages", id);
+      const docRef = doc(db, "housing", id);
       await updateDoc(docRef, { 
-        ...pkg,
-        location: new GeoPoint(pkg.location.latitude, pkg.location.longitude)
+        ...housing,
+        location: new GeoPoint(housing.location.latitude, housing.location.longitude)
       });
-      router.push('/admin/packages');
+      router.push('/admin/housing');
     } catch (error) {
-      setError("Failed to update package.");
-      console.error("Error updating package:", error);
+      setError("Failed to update housing.");
+      console.error("Error updating housing:", error);
     }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setPkg(prevPkg => prevPkg ? { ...prevPkg, [name]: value } : null);
+    setHousing(prevHousing => prevHousing ? { ...prevHousing, [name]: value } : null);
   };
 
   const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setPkg(prevPkg => {
-      if (!prevPkg) return null;
-      const updatedLocation = { ...prevPkg.location, [name]: parseFloat(value) };
-      return { ...prevPkg, location: updatedLocation };
+    setHousing(prevHousing => {
+      if (!prevHousing) return null;
+      const updatedLocation = { ...prevHousing.location, [name]: parseFloat(value) };
+      return { ...prevHousing, location: updatedLocation };
     });
   };
 
   const handleAvailabilityChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setPkg(prevPkg => {
-      if (!prevPkg) return null;
-      const updatedAvailability = [...prevPkg.availability];
+    setHousing(prevHousing => {
+      if (!prevHousing) return null;
+      const updatedAvailability = [...prevHousing.availability];
       updatedAvailability[index] = { ...updatedAvailability[index], [name]: name === 'available' ? value === 'true' : value };
-      return { ...prevPkg, availability: updatedAvailability };
+      return { ...prevHousing, availability: updatedAvailability };
     });
   };
 
   const handleAddAvailability = () => {
-    setPkg(prevPkg => {
-      if (!prevPkg) return null;
+    setHousing(prevHousing => {
+      if (!prevHousing) return null;
       const newAvailability = { date: "", available: false };
-      return { ...prevPkg, availability: [...prevPkg.availability, newAvailability] };
+      return { ...prevHousing, availability: [...prevHousing.availability, newAvailability] };
     });
   };
 
   const handleRemoveAvailability = (index: number) => {
-    setPkg(prevPkg => {
-      if (!prevPkg) return null;
-      const updatedAvailability = prevPkg.availability.filter((_, i) => i !== index);
-      return { ...prevPkg, availability: updatedAvailability };
-    });
-  };
-
-  const handleActivityChange = (index: number, e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setPkg(prevPkg => {
-      if (!prevPkg) return null;
-      const updatedActivities = [...prevPkg.activities];
-      updatedActivities[index] = { ...updatedActivities[index], [name]: value };
-      return { ...prevPkg, activities: updatedActivities };
-    });
-  };
-
-  const handleAddActivity = () => {
-    setPkg(prevPkg => {
-      if (!prevPkg) return null;
-      const newActivity = { name: "", description: "", time: "" };
-      return { ...prevPkg, activities: [...prevPkg.activities, newActivity] };
-    });
-  };
-
-  const handleRemoveActivity = (index: number) => {
-    setPkg(prevPkg => {
-      if (!prevPkg) return null;
-      const updatedActivities = prevPkg.activities.filter((_, i) => i !== index);
-      return { ...prevPkg, activities: updatedActivities };
+    setHousing(prevHousing => {
+      if (!prevHousing) return null;
+      const updatedAvailability = prevHousing.availability.filter((_, i) => i !== index);
+      return { ...prevHousing, availability: updatedAvailability };
     });
   };
 
   const handleImageSelect = (url: string) => {
-    setPkg(prevPkg => {
-      if (!prevPkg) return null;
+    setHousing(prevHousing => {
+      if (!prevHousing) return null;
       if (selectedImageIndex !== null) {
-        const updatedImages = [...(prevPkg.images || [])];
+        const updatedImages = [...(prevHousing.images || [])];
         updatedImages[selectedImageIndex] = url;
-        return { ...prevPkg, images: updatedImages };
+        return { ...prevHousing, images: updatedImages };
       }
-      return prevPkg;
+      return prevHousing;
     });
     setIsModalOpen(false);
   };
@@ -175,10 +146,10 @@ const EditPackage = () => {
   };
 
   const handleAddImage = () => {
-    setPkg(prevPkg => {
-      if (!prevPkg) return null;
-      const updatedImages = [...(prevPkg.images || []), ""];
-      return { ...prevPkg, images: updatedImages };
+    setHousing(prevHousing => {
+      if (!prevHousing) return null;
+      const updatedImages = [...(prevHousing.images || []), ""];
+      return { ...prevHousing, images: updatedImages };
     });
   };
 
@@ -191,7 +162,7 @@ const EditPackage = () => {
   const handleUpload = () => {
     if (!newImage) return;
 
-    const storageRef = ref(storage, `images/${newImage.name}`);
+    const storageRef = ref(storage, `housing-images/${newImage.name}`);
     const uploadTask = uploadBytesResumable(storageRef, newImage);
 
     uploadTask.on(
@@ -205,10 +176,10 @@ const EditPackage = () => {
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          setPkg(prevPkg => {
-            if (!prevPkg) return null;
-            const updatedImages = [...(prevPkg.images || []), downloadURL];
-            return { ...prevPkg, images: updatedImages };
+          setHousing(prevHousing => {
+            if (!prevHousing) return null;
+            const updatedImages = [...(prevHousing.images || []), downloadURL];
+            return { ...prevHousing, images: updatedImages };
           });
           alert('Upload successful!');
           fetchImages(); // Refresh the image list after upload
@@ -227,27 +198,19 @@ const EditPackage = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Edit Package</h1>
+      <h1 className="text-2xl font-bold mb-4">Edit Housing</h1>
       <p className='pb-10'>
-        <Link href="/admin/packages">
-          Back to packages list
+        <Link href="/admin/housing">
+          Back to housing list
         </Link>
       </p>
-      {pkg && (
+      {housing && (
         <form onSubmit={handleUpdate} className="flex flex-col gap-4">
-          <label className="font-bold">Title</label>
+          <label className="font-bold">Name</label>
           <input
             type="text"
             name="name"
-            value={pkg.name}
-            onChange={handleChange}
-            className="p-2 border border-gray-300 rounded"
-          />
-          <label className="mt-4 font-bold">Category</label>
-          <input
-            type="text"
-            name="category"
-            value={pkg.category}
+            value={housing.name}
             onChange={handleChange}
             className="p-2 border border-gray-300 rounded"
           />
@@ -255,29 +218,30 @@ const EditPackage = () => {
           <input
             type="text"
             name="city"
-            value={pkg.city}
+            value={housing.city}
+            onChange={handleChange}
+            className="p-2 border border-gray-300 rounded"
+          />
+          <label className="mt-4 font-bold">Address</label>
+          <input
+            type="text"
+            name="address"
+            value={housing.address}
             onChange={handleChange}
             className="p-2 border border-gray-300 rounded"
           />
           <label className="mt-4 font-bold">Description</label>
           <textarea
             name="description"
-            value={pkg.description}
+            value={housing.description}
             onChange={handleChange}
             className="p-2 border border-gray-300 rounded"
           />
-          <label className="mt-4 font-bold">Price and Days</label>
+          <label className="mt-4 font-bold">Price Per Night</label>
           <input
             type="number"
-            name="price"
-            value={pkg.price}
-            onChange={handleChange}
-            className="p-2 border border-gray-300 rounded"
-          />
-          <input
-            type="number"
-            name="days"
-            value={pkg.days}
+            name="pricePerNight"
+            value={housing.pricePerNight}
             onChange={handleChange}
             className="p-2 border border-gray-300 rounded"
           />
@@ -286,7 +250,7 @@ const EditPackage = () => {
             <input
               type="number"
               name="latitude"
-              value={pkg.location?.latitude || ""}
+              value={housing.location?.latitude || ""}
               onChange={handleLocationChange}
               className="p-2 border border-gray-300 rounded mb-2"
               placeholder="Latitude"
@@ -294,59 +258,52 @@ const EditPackage = () => {
             <input
               type="number"
               name="longitude"
-              value={pkg.location?.longitude || ""}
+              value={housing.location?.longitude || ""}
               onChange={handleLocationChange}
               className="p-2 border border-gray-300 rounded mb-2"
               placeholder="Longitude"
             />
           </div>
           <div className="mt-4">
-            <h3 className="font-semibold">Activities:</h3>
-            {pkg.activities.map((activity, index) => (
+            <h3 className="font-semibold">Availability:</h3>
+            {housing.availability.map((availability, index) => (
               <div key={index} className="border p-2 rounded mb-2">
                 <input
-                  type="text"
-                  name="name"
-                  value={activity.name}
-                  onChange={(e) => handleActivityChange(index, e)}
+                  type="date"
+                  name="date"
+                  value={availability.date}
+                  onChange={(e) => handleAvailabilityChange(index, e)}
                   className="p-2 border border-gray-300 rounded mb-2"
-                  placeholder="Activity Name"
-                />
-                <textarea
-                  name="description"
-                  value={activity.description}
-                  onChange={(e) => handleActivityChange(index, e)}
-                  className="p-2 border border-gray-300 rounded mb-2"
-                  placeholder="Activity Description"
+                  placeholder="Date"
                 />
                 <input
-                  type="text"
-                  name="time"
-                  value={activity.time}
-                  onChange={(e) => handleActivityChange(index, e)}
+                  type="checkbox"
+                  name="available"
+                  checked={availability.available}
+                  onChange={(e) => handleAvailabilityChange(index, e)}
                   className="p-2 border border-gray-300 rounded mb-2"
-                  placeholder="Activity Time"
+                  placeholder="Available"
                 />
                 <button
                   type="button"
-                  onClick={() => handleRemoveActivity(index)}
+                  onClick={() => handleRemoveAvailability(index)}
                   className="p-2 bg-red-500 text-white rounded"
                 >
-                  Remove Activity
+                  Remove Availability
                 </button>
               </div>
             ))}
             <button
               type="button"
-              onClick={handleAddActivity}
+              onClick={handleAddAvailability}
               className="p-2 bg-green-500 text-white rounded"
             >
-              Add Activity
+              Add Availability
             </button>
           </div>
           <div className="mt-4">
             <h3 className="font-semibold">Images:</h3>
-            {pkg.images && pkg.images.map((url, index) => (
+            {housing.images && housing.images.map((url, index) => (
               <div key={index} className="flex items-center gap-2 mb-2">
                 <input
                   type="text"
@@ -384,11 +341,11 @@ const EditPackage = () => {
       <ImageSelectorModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        folderPath="images/"
+        folderPath="housing-images/"
         onSelectImage={handleImageSelect}
       />
     </div>
   );
 };
 
-export default EditPackage;
+export default EditHousingPage;

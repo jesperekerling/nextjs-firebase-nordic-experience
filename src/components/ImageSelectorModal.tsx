@@ -1,15 +1,19 @@
-import React, { useRef, useEffect } from 'react';
+'use client';
+import React, { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
+import { storage } from '../../firebase/firebaseConfig';
+import { ref, listAll, getDownloadURL } from 'firebase/storage';
 
 interface ImageSelectorModalProps {
   isOpen: boolean;
   onClose: () => void;
-  imageList: string[];
+  folderPath: string;
   onSelectImage: (url: string) => void;
 }
 
-const ImageSelectorModal: React.FC<ImageSelectorModalProps> = ({ isOpen, onClose, imageList, onSelectImage }) => {
+const ImageSelectorModal: React.FC<ImageSelectorModalProps> = ({ isOpen, onClose, folderPath, onSelectImage }) => {
   const modalRef = useRef<HTMLDivElement>(null);
+  const [imageList, setImageList] = useState<string[]>([]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -20,6 +24,7 @@ const ImageSelectorModal: React.FC<ImageSelectorModalProps> = ({ isOpen, onClose
 
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside);
+      fetchImages();
     } else {
       document.removeEventListener('mousedown', handleClickOutside);
     }
@@ -28,6 +33,18 @@ const ImageSelectorModal: React.FC<ImageSelectorModalProps> = ({ isOpen, onClose
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isOpen, onClose]);
+
+  const fetchImages = async () => {
+    try {
+      console.log(`Fetching images from folder: ${folderPath}`);
+      const imagesRef = ref(storage, folderPath);
+      const imagesList = await listAll(imagesRef);
+      const urls = await Promise.all(imagesList.items.map(item => getDownloadURL(item)));
+      setImageList(urls);
+    } catch (error) {
+      console.error("Error fetching images:", error);
+    }
+  };
 
   if (!isOpen) return null;
 
