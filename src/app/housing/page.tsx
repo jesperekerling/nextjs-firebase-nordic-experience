@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { fetchHousing } from '@/utils/fetchHousing';
 import { Housing } from '@/types/housing';
+import Image from 'next/image';
 
 const HousingList = () => {
   const [housingList, setHousingList] = useState<Housing[]>([]);
@@ -44,7 +45,13 @@ const HousingList = () => {
           {housingList.map(housing => (
             <div key={housing.id} className="relative rounded">
               {housing.images && housing.images.length > 0 && (
-                <img src={housing.images[0]} alt={`Image of ${housing.name}`} className="w-full h-48 object-cover mb-4 rounded" />
+                <Image
+                  src={housing.images[0]}
+                  alt={`Image of ${housing.name}`}
+                  className="w-full h-48 object-cover mb-4 rounded"
+                  width={1000}
+                  height={1000}
+                />
               )}
               <Link href={`/housing/${housing.id}`} className="hover:opacity-65">
                 <h2 className="text-lg font-bold py-3">{housing.name}</h2>

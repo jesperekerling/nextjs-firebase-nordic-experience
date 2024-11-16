@@ -1,6 +1,7 @@
 import { GeoPoint } from "firebase/firestore";
 
-export interface Accommodation {
+export interface Housing {
+  id: string;
   name: string;
   city: string;
   address: string;

@@ -1,6 +1,5 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { useParams } from 'next/navigation';
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../../../firebase/firebaseConfig";
@@ -16,7 +15,6 @@ const HousingDetailPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const router = useRouter();
 
   useEffect(() => {
     const fetchHousing = async () => {
@@ -86,8 +84,10 @@ const HousingDetailPage = () => {
           {housing.images && housing.images.length > 0 && (
             <div className="grid grid-cols-4 gap-2 md:gap-3">
               <div className="col-span-4 md:col-span-2 lg:col-span-2">
-                <img
+                <Image
                   src={housing.images[0]}
+                  width={1000}
+                  height={1000}
                   alt={`Image of ${housing.name}`}
                   className="w-full h-auto object-cover rounded cursor-pointer"
                   onClick={() => handleOpenModal(0)}
@@ -95,9 +95,11 @@ const HousingDetailPage = () => {
               </div>
               <div className="col-span-4 md:col-span-2 lg:col-span-2 grid grid-cols-2 gap-2 md:gap-3">
                 {housing.images.slice(1, 5).map((image, index) => (
-                  <img
+                  <Image
                     key={index}
                     src={image}
+                    width={600}
+                    height={600}
                     alt={`Image of ${housing.name}`}
                     className="w-full h-auto object-cover rounded cursor-pointer"
                     onClick={() => handleOpenModal(index + 1)}
