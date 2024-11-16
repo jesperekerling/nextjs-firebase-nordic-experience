@@ -6,12 +6,16 @@ import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../../../firebase/firebaseConfig";
 import { Housing } from "@/types/housing";
 import Link from 'next/link';
+import Modal from '@/components/Modal';
+import Image from 'next/image';
 
 const HousingDetailPage = () => {
   const { id } = useParams<{ id: string }>(); // Ensure useParams is correctly typed
   const [housing, setHousing] = useState<Housing | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const router = useRouter();
 
   useEffect(() => {
@@ -40,6 +44,27 @@ const HousingDetailPage = () => {
     fetchHousing();
   }, [id]);
 
+  const handleOpenModal = (index: number) => {
+    setCurrentImageIndex(index);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleNextImage = () => {
+    if (housing) {
+      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % housing.images.length);
+    }
+  };
+
+  const handlePrevImage = () => {
+    if (housing) {
+      setCurrentImageIndex((prevIndex) => (prevIndex - 1 + housing.images.length) % housing.images.length);
+    }
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -59,10 +84,26 @@ const HousingDetailPage = () => {
         <div>
           <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold my-7 md:my-10">{housing.name}</h1>
           {housing.images && housing.images.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {housing.images.map((image, index) => (
-                <img key={index} src={image} alt={`Image of ${housing.name}`} className="w-full h-48 object-cover rounded" />
-              ))}
+            <div className="grid grid-cols-4 gap-2 md:gap-3">
+              <div className="col-span-4 md:col-span-2 lg:col-span-2">
+                <img
+                  src={housing.images[0]}
+                  alt={`Image of ${housing.name}`}
+                  className="w-full h-auto object-cover rounded cursor-pointer"
+                  onClick={() => handleOpenModal(0)}
+                />
+              </div>
+              <div className="col-span-4 md:col-span-2 lg:col-span-2 grid grid-cols-2 gap-2 md:gap-3">
+                {housing.images.slice(1, 5).map((image, index) => (
+                  <img
+                    key={index}
+                    src={image}
+                    alt={`Image of ${housing.name}`}
+                    className="w-full h-auto object-cover rounded cursor-pointer"
+                    onClick={() => handleOpenModal(index + 1)}
+                  />
+                ))}
+              </div>
             </div>
           )}
           <p className="mt-5">{housing.description}</p>
@@ -89,6 +130,32 @@ const HousingDetailPage = () => {
           </div>
         </div>
       )}
+      <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
+        {housing && (
+          <div className="relative">
+            <Image
+              src={housing.images[currentImageIndex]}
+              alt={`Image ${currentImageIndex}`}
+              width={800}
+              height={600}
+              className="w-full h-auto object-cover"
+              priority={true}
+            />
+            <button
+              onClick={handlePrevImage}
+              className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full font-bold"
+            >
+              &lt;
+            </button>
+            <button
+              onClick={handleNextImage}
+              className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full font-bold"
+            >
+              &gt;
+            </button>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };

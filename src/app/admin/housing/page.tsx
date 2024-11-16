@@ -44,11 +44,23 @@ const HousingListPage = () => {
     <div className="pb-20 font-[family-name:var(--font-geist-sans)]">
       <section className="text-center">
         <h1 className="text-2xl font-bold">Housing List</h1>
-        <p className="py-5">
-          <Link href="/admin/housing/add" className="hover:underline">
-            Create a new housing option
-          </Link>
-        </p>
+        <ul className="py-5 flex gap-5">
+          <li>
+            <Link href="/admin/" className="hover:underline">
+              Back to Admin
+            </Link>
+          </li>
+          <li>
+            <Link href="/admin/housing/add" className="hover:underline">
+              Create a new housing option
+            </Link>
+          </li>
+          <li>
+            <Link href="/admin/housing/add" className="hover:underline">
+              Upload images
+            </Link>
+          </li>
+        </ul>
       </section>
       <section className="mt-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">

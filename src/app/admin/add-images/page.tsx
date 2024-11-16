@@ -1,21 +1,23 @@
-'use client'
+'use client';
 import React, { useState, useEffect } from 'react';
 import { storage } from '../../../../firebase/firebaseConfig';
 import { ref, uploadBytesResumable, getDownloadURL, listAll } from 'firebase/storage';
 import Image from 'next/image';
+import Link from 'next/link';
 
 function AddContent() {
   const [image, setImage] = useState<File | null>(null);
   const [progress, setProgress] = useState(0);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [imageList, setImageList] = useState<string[]>([]);
+  const [folder, setFolder] = useState<string>('images');
 
   useEffect(() => {
     fetchImages();
-  }, []);
+  }, [folder]);
 
   const fetchImages = async () => {
-    const imagesRef = ref(storage, 'images/');
+    const imagesRef = ref(storage, `${folder}/`);
     const imagesList = await listAll(imagesRef);
     const urls = await Promise.all(imagesList.items.map(item => getDownloadURL(item)));
     setImageList(urls);
@@ -30,7 +32,7 @@ function AddContent() {
   const handleUpload = () => {
     if (!image) return;
 
-    const storageRef = ref(storage, `images/${image.name}`);
+    const storageRef = ref(storage, `${folder}/${image.name}`);
     const uploadTask = uploadBytesResumable(storageRef, image);
 
     uploadTask.on(
@@ -52,9 +54,23 @@ function AddContent() {
     );
   };
 
+  const handleFolderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setFolder(e.target.value);
+  };
+
   return (
     <div>
-      <h1 className='text-2xl py-3'>Upload Image</h1>
+      <p>
+        <Link href="/admin/" className="hover:underline bg-primary text-white rounded px-4 py-3">Back to Admin</Link>
+      </p>
+      <h1 className='text-2xl py-3 font-bold mt-5'>Upload Image</h1>
+      <div className="mb-4">
+        <label className="mr-2">Select Folder:</label>
+        <select value={folder} onChange={handleFolderChange} className="p-2 border border-gray-300 rounded">
+          <option value="images">Images</option>
+          <option value="housing-images">Housing Images</option>
+        </select>
+      </div>
       <input type="file" onChange={handleImageChange} />
       <button onClick={handleUpload} className="bg-primary text-white px-3 py-2 rounded-lg mr-3">Upload</button>
       <progress value={progress} max="100" />
