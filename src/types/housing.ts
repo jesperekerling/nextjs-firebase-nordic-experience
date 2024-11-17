@@ -13,4 +13,5 @@ export interface Housing {
     date: string;
     available: boolean;
   }[];
+  maxGuests: number;
 }

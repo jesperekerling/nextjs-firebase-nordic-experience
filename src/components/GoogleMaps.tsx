@@ -23,7 +23,6 @@ const GoogleMaps: React.FC<GoogleMapsProps> = ({ lat, lng }) => {
     lng,
   };
 
-  // Check if lat and lng are valid numbers
   if (isNaN(lat) || isNaN(lng)) {
     return <div>Invalid location data</div>;
   }

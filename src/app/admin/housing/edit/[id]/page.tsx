@@ -245,6 +245,14 @@ const EditHousingPage = () => {
             onChange={handleChange}
             className="p-2 border border-gray-300 rounded"
           />
+          <label className="mt-4 font-bold">Max Guests</label>
+          <input
+            type="number"
+            name="maxGuests"
+            value={housing.maxGuests ?? ''} // Ensure the input is always controlled
+            onChange={handleChange}
+            className="p-2 border border-gray-300 rounded"
+          />
           <div className="mt-4">
             <h3 className="font-semibold">Location:</h3>
             <input

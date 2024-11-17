@@ -56,7 +56,7 @@ const HousingListPage = () => {
             </Link>
           </li>
           <li>
-            <Link href="/admin/housing/add" className="hover:underline">
+            <Link href="/admin/add-images" className="hover:underline">
               Upload images
             </Link>
           </li>

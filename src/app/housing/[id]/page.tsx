@@ -7,6 +7,7 @@ import { Housing } from "@/types/housing";
 import Link from 'next/link';
 import Modal from '@/components/Modal';
 import Image from 'next/image';
+import GoogleMaps from '@/components/GoogleMaps';
 
 const HousingDetailPage = () => {
   const { id } = useParams<{ id: string }>(); // Ensure useParams is correctly typed
@@ -15,6 +16,8 @@ const HousingDetailPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [lat, setLat] = useState<number | null>(null);
+  const [lng, setLng] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchHousing = async () => {
@@ -27,7 +30,9 @@ const HousingDetailPage = () => {
         const docRef = doc(db, "housing", id);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          setHousing({ id: docSnap.id, ...docSnap.data() } as Housing);
+          const housingData = { id: docSnap.id, ...docSnap.data() } as Housing;
+          setHousing(housingData);
+          fetchCoordinates(housingData.address);
         } else {
           setError("Housing not found.");
         }
@@ -41,6 +46,24 @@ const HousingDetailPage = () => {
 
     fetchHousing();
   }, [id]);
+
+  const fetchCoordinates = async (address: string) => {
+    try {
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`
+      );
+      const data = await response.json();
+      if (data.results && data.results.length > 0) {
+        const location = data.results[0].geometry.location;
+        setLat(location.lat);
+        setLng(location.lng);
+      } else {
+        console.error("No results found for the address.");
+      }
+    } catch (error) {
+      console.error("Error fetching coordinates:", error);
+    }
+  };
 
   const handleOpenModal = (index: number) => {
     setCurrentImageIndex(index);
@@ -72,7 +95,7 @@ const HousingDetailPage = () => {
   }
 
   return (
-    <div className="container mx-auto p-4">
+    <div>
       <Link href="/housing">
         <button className="bg-primary text-white py-2 px-3 rounded-lg font-semibold text-sm md:text-md hover:opacity-80">
           Back to housing list
@@ -83,15 +106,18 @@ const HousingDetailPage = () => {
           <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold my-7 md:my-10">{housing.name}</h1>
           {housing.images && housing.images.length > 0 && (
             <div className="grid grid-cols-4 gap-2 md:gap-3">
-              <div className="col-span-4 md:col-span-2 lg:col-span-2">
+              <div className="col-span-4 md:col-span-2 lg:col-span-2 relative">
                 <Image
                   src={housing.images[0]}
                   width={1000}
                   height={1000}
                   alt={`Image of ${housing.name}`}
-                  className="w-full h-auto object-cover rounded cursor-pointer"
+                  className="w-full aspect-video object-cover rounded cursor-pointer"
                   onClick={() => handleOpenModal(0)}
                 />
+                <span className="absolute top-2 right-2 bg-primary text-white px-2 py-1 rounded text-xs font-semibold">
+                  {housing.city}
+                </span>
               </div>
               <div className="col-span-4 md:col-span-2 lg:col-span-2 grid grid-cols-2 gap-2 md:gap-3">
                 {housing.images.slice(1, 5).map((image, index) => (
@@ -101,7 +127,7 @@ const HousingDetailPage = () => {
                     width={600}
                     height={600}
                     alt={`Image of ${housing.name}`}
-                    className="w-full h-auto object-cover rounded cursor-pointer"
+                    className="w-full aspect-video object-cover rounded cursor-pointer"
                     onClick={() => handleOpenModal(index + 1)}
                   />
                 ))}
@@ -110,11 +136,11 @@ const HousingDetailPage = () => {
           )}
           <p className="mt-5">{housing.description}</p>
           <div className="flex py-5">
-            <p className="text-md md:text-lg flex-auto">{housing.address}</p>
             <p className="text-black flex-auto text-right font-bold px-1">${housing.pricePerNight} per night</p>
           </div>
           <p className="my-5">
-            <span className="bg-secondary text-black py-3 px-5 rounded-lg font-semibold">{housing.city}</span>
+            <span className="bg-secondary text-black py-3 px-5 rounded-lg font-semibold mr-4">{housing.city}</span>
+            <span className="bg-secondary text-black py-3 px-5 rounded-lg font-semibold">Max Guests: {housing.maxGuests}</span>
           </p>
           <div className="mt-2">
             <h2 className="font-semibold pt-5 pb-3 text-xl md:text-2xl">Availability</h2>
@@ -130,6 +156,13 @@ const HousingDetailPage = () => {
               )}
             </ul>
           </div>
+          {lat && lng && (
+            <section>
+              <h2 className="font-semibold pt-5 pb-3 text-xl md:text-2xl">Location</h2>
+              <p className="text-md md:text-lg flex-auto pb-3">{housing.address}</p>
+              <GoogleMaps lat={lat} lng={lng} />
+            </section>
+          )}
         </div>
       )}
       <Modal isOpen={isModalOpen} onClose={handleCloseModal}>

@@ -5,6 +5,7 @@ import { fetchHousing } from '@/utils/fetchHousing';
 import { Housing } from '@/types/housing';
 import Image from 'next/image';
 
+
 const HousingList = () => {
   const [housingList, setHousingList] = useState<Housing[]>([]);
   const [loading, setLoading] = useState(true);
@@ -44,18 +45,23 @@ const HousingList = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           {housingList.map(housing => (
             <div key={housing.id} className="relative rounded">
-              {housing.images && housing.images.length > 0 && (
-                <Image
-                  src={housing.images[0]}
-                  alt={`Image of ${housing.name}`}
-                  className="w-full h-48 object-cover mb-4 rounded"
-                  width={1000}
-                  height={1000}
-                />
-              )}
+              <div className="relative">
+                {housing.images && housing.images.length > 0 && (
+                  <Image
+                    src={housing.images[0]}
+                    alt={`Image of ${housing.name}`}
+                    className="w-full h-48 object-cover mb-4 rounded"
+                    width={600}
+                    height={600}
+                  />
+                )}
+                <span className="absolute top-2 right-2 bg-primary text-white px-2 py-1 rounded text-xs font-semibold">
+                  {housing.city}
+                </span>
+              </div>
               <Link href={`/housing/${housing.id}`} className="hover:opacity-65">
                 <h2 className="text-lg font-bold py-3">{housing.name}</h2>
-                <p className="text-sm">{housing.description}</p>
+                <p className="text-sm truncate">{housing.description}</p>
                 <p className="text-gray-500 text-sm dark:text-gray-400 pt-1">${housing.pricePerNight}/night</p>
                 <div className="mt-2 text-xs">
                   <h3 className="font-semibold">Availability:</h3>
