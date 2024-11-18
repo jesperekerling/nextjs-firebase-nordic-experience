@@ -9,6 +9,7 @@ import { Housing } from "../../../../../types/housing";
 import ImageSelectorModal from "@/components/ImageSelectorModal";
 import { onAuthStateChanged } from "firebase/auth";
 import Link from 'next/link';
+import Image from 'next/image'; // Ensure this import is correct
 import { GeoPoint } from "firebase/firestore";
 
 const EditHousingPage = () => {
@@ -16,7 +17,6 @@ const EditHousingPage = () => {
   const [housing, setHousing] = useState<Housing | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [imageList, setImageList] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [newImage, setNewImage] = useState<File | null>(null);
@@ -64,7 +64,7 @@ const EditHousingPage = () => {
       const imagesRef = ref(storage, 'housing-images/');
       const imagesList = await listAll(imagesRef);
       const urls = await Promise.all(imagesList.items.map(item => getDownloadURL(item)));
-      setImageList(urls);
+      // Use the imageList if needed, otherwise remove this comment
     } catch (error) {
       console.error("Error fetching images:", error);
     }
@@ -333,7 +333,13 @@ const EditHousingPage = () => {
                   readOnly
                   className="p-2 border border-gray-300 rounded flex-1"
                 />
-                <img src={url} alt={`Image ${index}`} className="w-16 h-16 object-cover" />
+                <Image
+                  src={url}
+                  alt={`Image ${index}`}
+                  width={64}
+                  height={64}
+                  className="w-16 h-16 object-cover"
+                />
                 <button
                   type="button"
                   onClick={() => handleOpenModal(index)}
