@@ -28,6 +28,7 @@ const AddHousingPage = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [newImage, setNewImage] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [imageList, setImageList] = useState<string[]>([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -35,8 +36,8 @@ const AddHousingPage = () => {
       try {
         const imagesRef = ref(storage, 'housing-images/');
         const imagesList = await listAll(imagesRef);
-        await Promise.all(imagesList.items.map(item => getDownloadURL(item)));
-        // Use the imageList if needed, otherwise remove this comment
+        const urls = await Promise.all(imagesList.items.map(item => getDownloadURL(item)));
+        setImageList(urls);
       } catch (error) {
         console.error("Error fetching images:", error);
       }
@@ -72,8 +73,12 @@ const AddHousingPage = () => {
   const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setHousing(prevHousing => {
-      const updatedLocation = { ...prevHousing.location, [name]: parseFloat(value) };
-      return { ...prevHousing, location: updatedLocation };
+      const updatedLocation = {
+        latitude: prevHousing.location.latitude,
+        longitude: prevHousing.location.longitude,
+        [name]: parseFloat(value)
+      };
+      return { ...prevHousing, location: new GeoPoint(updatedLocation.latitude, updatedLocation.longitude) };
     });
   };
 
@@ -132,6 +137,13 @@ const AddHousingPage = () => {
         });
       }
     );
+  };
+
+  const handleDeleteImage = (index: number) => {
+    setHousing(prevHousing => {
+      const updatedImages = prevHousing.images.filter((_, i) => i !== index);
+      return { ...prevHousing, images: updatedImages };
+    });
   };
 
   if (loading) {
@@ -271,6 +283,7 @@ const AddHousingPage = () => {
         onClose={() => setIsModalOpen(false)}
         folderPath="housing-images/"
         onSelectImage={handleImageSelect}
+        imageList={imageList} // Pass the imageList prop
       />
     </div>
   );

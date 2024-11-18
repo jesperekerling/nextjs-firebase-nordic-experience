@@ -1,27 +1,24 @@
 import { doc, getDoc, collection, getDocs } from "firebase/firestore";
 import { db } from "../../../../firebase/firebaseConfig";
 import { Package } from "@/types/package";
-import PackageDetailClient from './PackageDetailClient';
+import PackageDetailClient from "./PackageDetailClient";
 import Link from "next/link";
 import GoogleMaps from "@/components/GoogleMaps";
 
-interface PackageDetailProps {
-  params: { id: string };
-  searchParams: { user?: string };
-}
+export const revalidate = 60;
+export const dynamicParams = true;
 
 export async function generateStaticParams() {
-  // Fetch all package IDs from Firestore
-  const packagesSnapshot = await getDocs(collection(db, 'packages'));
+  const packagesSnapshot = await getDocs(collection(db, "packages"));
   const paths = packagesSnapshot.docs.map(doc => ({
-    id: doc.id,
+    params: { id: doc.id },
   }));
 
   return paths;
 }
 
-const PackageDetail = async ({ params }: PackageDetailProps) => {
-  const { id } = params;
+const PackageDetail = async ({ params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params;
 
   let pkg: Package | null = null;
   let error: string | null = null;
@@ -47,15 +44,8 @@ const PackageDetail = async ({ params }: PackageDetailProps) => {
   const defaultLng = 12.521130;
   const location = pkg?.location;
 
-  // Print the location value from the database
-  console.log("Location from database:", location);
-
-  const lat = location && location.length > 0 ? location[0].latitude : defaultLat;
-  const lng = location && location.length > 0 ? location[0].longitude : defaultLng;
-
-  // Print the converted latitude and longitude values
-  console.log("Converted latitude:", lat);
-  console.log("Converted longitude:", lng);
+  const lat = location?.[0]?.latitude || defaultLat;
+  const lng = location?.[0]?.longitude || defaultLng;
 
   return (
     <div>
