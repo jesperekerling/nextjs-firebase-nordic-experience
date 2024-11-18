@@ -22,6 +22,18 @@ const ImageSelectorModal: React.FC<ImageSelectorModalProps> = ({ isOpen, onClose
       }
     };
 
+    const fetchImages = async () => {
+      try {
+        console.log(`Fetching images from folder: ${folderPath}`);
+        const imagesRef = ref(storage, folderPath);
+        const imagesList = await listAll(imagesRef);
+        const urls = await Promise.all(imagesList.items.map(item => getDownloadURL(item)));
+        setImageList(urls);
+      } catch (error) {
+        console.error("Error fetching images:", error);
+      }
+    };
+
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside);
       fetchImages();
@@ -32,19 +44,7 @@ const ImageSelectorModal: React.FC<ImageSelectorModalProps> = ({ isOpen, onClose
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isOpen, onClose]);
-
-  const fetchImages = async () => {
-    try {
-      console.log(`Fetching images from folder: ${folderPath}`);
-      const imagesRef = ref(storage, folderPath);
-      const imagesList = await listAll(imagesRef);
-      const urls = await Promise.all(imagesList.items.map(item => getDownloadURL(item)));
-      setImageList(urls);
-    } catch (error) {
-      console.error("Error fetching images:", error);
-    }
-  };
+  }, [isOpen, onClose, folderPath]);
 
   if (!isOpen) return null;
 

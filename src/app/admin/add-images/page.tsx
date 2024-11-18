@@ -12,16 +12,16 @@ function AddContent() {
   const [imageList, setImageList] = useState<string[]>([]);
   const [folder, setFolder] = useState<string>('images');
 
-  useEffect(() => {
-    fetchImages();
-  }, [folder]);
-
-  const fetchImages = async () => {
+  const fetchImages = useCallback(async () => {
     const imagesRef = ref(storage, `${folder}/`);
     const imagesList = await listAll(imagesRef);
     const urls = await Promise.all(imagesList.items.map(item => getDownloadURL(item)));
     setImageList(urls);
-  };
+  }, [folder]);
+
+  useEffect(() => {
+    fetchImages();
+  }, [folder, fetchImages]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
