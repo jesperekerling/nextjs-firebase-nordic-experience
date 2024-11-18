@@ -9,14 +9,14 @@ interface FilterProps {
 }
 
 const Filter: React.FC<FilterProps> = ({ onDateChange, onGuestsChange, maxGuests }) => {
-  const [startDate, setStartDate] = useState<Date | null>(null);
-  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [guests, setGuests] = useState<number>(1);
 
   const handleDateChange = (dates: [Date | null, Date | null]) => {
     const [start, end] = dates;
-    setStartDate(start);
-    setEndDate(end);
+    setStartDate(start || undefined);
+    setEndDate(end || undefined);
     if (start && end) {
       onDateChange(start, end);
     }
@@ -31,40 +31,23 @@ const Filter: React.FC<FilterProps> = ({ onDateChange, onGuestsChange, maxGuests
   };
 
   return (
-    <div className="flex flex-col md:flex-row gap-4 mb-4">
-      <div>
-        <label className="block mb-2 font-semibold">Select Date Range:</label>
-        <DatePicker
-          selected={startDate}
-          onChange={handleDateChange}
-          startDate={startDate}
-          endDate={endDate}
-          selectsRange
-          className="p-2 border border-gray-300 rounded"
-          dateFormat="yyyy-MM-dd"
-          placeholderText="Select a date range"
-        />
-      </div>
-      <div className="flex items-center">
-        <label className="block mb-2 font-semibold mr-2">Number of Guests:</label>
-        <button
-          type="button"
-          onClick={() => handleGuestsChange(guests - 1)}
-          className="p-2 bg-gray-300 rounded-l"
-          disabled={guests <= 1}
-        >
-          -
-        </button>
-        <span className="p-2 border-t border-b border-gray-300">{guests}</span>
-        <button
-          type="button"
-          onClick={() => handleGuestsChange(guests + 1)}
-          className="p-2 bg-gray-300 rounded-r"
-          disabled={guests >= maxGuests}
-        >
-          +
-        </button>
-      </div>
+    <div className="filter">
+      <DatePicker
+        selected={startDate}
+        onChange={handleDateChange}
+        startDate={startDate}
+        endDate={endDate}
+        selectsRange
+        className="p-2 border border-gray-300 rounded"
+      />
+      <input
+        type="number"
+        value={guests}
+        onChange={(e) => handleGuestsChange(parseInt(e.target.value))}
+        min={1}
+        max={maxGuests}
+        className="p-2 border border-gray-300 rounded"
+      />
     </div>
   );
 };

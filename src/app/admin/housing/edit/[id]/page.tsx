@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db, storage } from "../../../../../../firebase/firebaseConfig"; // Adjust the import path
 import { ref, uploadBytesResumable, getDownloadURL, listAll } from "firebase/storage";
@@ -10,8 +10,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { GeoPoint } from "firebase/firestore";
 
-const EditHousingPage = ({ params }: { params: { id: string } }) => {
-  const { id } = params;
+const EditHousingPage = () => {
+  const { id } = useParams<{ id: string }>(); // Ensure useParams is correctly typed
 
   const [housing, setHousing] = useState<Housing | null>(null);
   const [loading, setLoading] = useState(false);

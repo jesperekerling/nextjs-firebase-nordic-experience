@@ -1,39 +1,43 @@
-import { doc, getDoc, collection, getDocs } from "firebase/firestore";
+'use client';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
+import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../../../firebase/firebaseConfig";
 import { Package } from "@/types/package";
 import PackageDetailClient from "./PackageDetailClient";
 import Link from "next/link";
 import GoogleMaps from "@/components/GoogleMaps";
 
-export const revalidate = 60;
-export const dynamicParams = true;
+const PackageDetail = () => {
+  const { id } = useParams<{ id: string }>(); // Ensure useParams is correctly typed
 
-export async function generateStaticParams() {
-  const packagesSnapshot = await getDocs(collection(db, "packages"));
-  const paths = packagesSnapshot.docs.map(doc => ({
-    params: { id: doc.id },
-  }));
+  const [pkg, setPkg] = useState<Package | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  return paths;
-}
+  useEffect(() => {
+    const fetchPackage = async () => {
+      try {
+        const docRef = doc(db, "packages", id);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setPkg({ id: docSnap.id, ...docSnap.data() } as Package);
+        } else {
+          setError("Package not found.");
+        }
+      } catch (error) {
+        setError("Failed to fetch package.");
+        console.error("Error fetching package:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-const PackageDetail = async ({ params }: { params: Promise<{ id: string }> }) => {
-  const { id } = await params;
+    fetchPackage();
+  }, [id]);
 
-  let pkg: Package | null = null;
-  let error: string | null = null;
-
-  try {
-    const docRef = doc(db, "packages", id);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      pkg = { id: docSnap.id, ...docSnap.data() } as Package;
-    } else {
-      error = "Package not found.";
-    }
-  } catch (err) {
-    error = "Failed to fetch package.";
-    console.error("Error fetching package:", err);
+  if (loading) {
+    return <div>Loading...</div>;
   }
 
   if (error) {
@@ -44,11 +48,11 @@ const PackageDetail = async ({ params }: { params: Promise<{ id: string }> }) =>
   const defaultLng = 12.521130;
   const location = pkg?.location;
 
-  const lat = location?.[0]?.latitude || defaultLat;
-  const lng = location?.[0]?.longitude || defaultLng;
+  const lat = location?.latitude || defaultLat;
+  const lng = location?.longitude || defaultLng;
 
   return (
-    <div>
+    <div className="container mx-auto p-4">
       <Link href="/">
         <button className="bg-primary text-white py-2 px-3 rounded-lg font-semibold text-sm md:text-md hover:opacity-80">
           Back to packages

@@ -92,8 +92,12 @@ const EditPackagePage = () => {
     const { name, value } = e.target;
     setPkg(prevPkg => {
       if (!prevPkg) return null;
-      const updatedLocation = { ...prevPkg.location, [name]: parseFloat(value) };
-      return { ...prevPkg, location: updatedLocation };
+      const updatedLocation = {
+        latitude: prevPkg.location.latitude,
+        longitude: prevPkg.location.longitude,
+        [name]: parseFloat(value)
+      };
+      return { ...prevPkg, location: new GeoPoint(updatedLocation.latitude, updatedLocation.longitude) };
     });
   };
 

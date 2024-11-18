@@ -10,7 +10,7 @@ export async function middleware(request: NextRequest) {
 
   try {
     const decodedToken = await verifyIdToken(token);
-    if (decodedToken.role !== 'admin') {
+    if (!decodedToken || decodedToken.role !== 'admin') {
       return NextResponse.redirect(new URL('/unauthorized', request.url));
     }
   } catch (error) {

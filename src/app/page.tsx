@@ -3,10 +3,23 @@ import { fetchPackages } from "../utils/fetchPackages";
 import PackageList from "./package/(components)/PackageList";
 import FrontPageInfoModal from "../components/FrontPageInfoModal";
 
-const FrontPage = async ({ searchParams }) => {
-  const resolvedSearchParams = await searchParams;
-  const selectedCategory = resolvedSearchParams?.category || null;
-  const selectedCity = resolvedSearchParams?.city || null;
+interface SearchParams {
+  category?: string;
+  city?: string;
+}
+
+
+export async function generateMetadata() {
+  return {
+    title: "Nordic Experiences",
+    description: "Travel packages for the Nordic Capital cities",
+  };
+}
+
+const FrontPage = async ({ searchParams }: { searchParams: Promise<SearchParams> }) => {
+  const params = await searchParams;
+  const selectedCategory = params?.category || null;
+  const selectedCity = params?.city || null;
   const packages = await fetchPackages();
 
   // Filter packages by selected category and city

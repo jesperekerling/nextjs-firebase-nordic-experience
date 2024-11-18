@@ -8,6 +8,7 @@ export interface Package {
   description: string;
   price: number;
   days: number;
+  address: string;
   activities: {
     name: string;
     description: string;
