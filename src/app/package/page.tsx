@@ -1,4 +1,4 @@
-import { fetchPackages } from "../../../utils/fetchPackages";
+import { fetchPackages } from "../../utils/fetchPackages";
 import PackageListClient from "./(components)/PackageList";
 
 const PackagePage = async ({ searchParams }) => {
