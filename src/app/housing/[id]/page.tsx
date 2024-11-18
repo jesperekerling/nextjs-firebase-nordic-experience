@@ -95,7 +95,7 @@ const HousingDetailPage = () => {
   }
 
   return (
-    <div>
+    <div className="container mx-auto p-4">
       <Link href="/housing">
         <button className="bg-primary text-white py-2 px-3 rounded-lg font-semibold text-sm md:text-md hover:opacity-80">
           Back to housing list
@@ -134,14 +134,14 @@ const HousingDetailPage = () => {
               </div>
             </div>
           )}
-          <p className="mt-5">{housing.description}</p>
-          <div className="flex py-5">
-            <p className="text-black flex-auto text-right font-bold px-1">${housing.pricePerNight} per night</p>
+          <div className="flex">
+            <p className="my-5 text-left">
+              <span className="bg-secondary text-black py-3 px-5 rounded-lg font-semibold mr-4">{housing.city}</span>
+              <span className="bg-secondary text-black py-3 px-5 rounded-lg font-semibold">Max Guests: {housing.maxGuests}</span>
+            </p>
+            <p className="my-5 text-black flex-auto text-right font-bold px-1">${housing.pricePerNight} per night</p>
           </div>
-          <p className="my-5">
-            <span className="bg-secondary text-black py-3 px-5 rounded-lg font-semibold mr-4">{housing.city}</span>
-            <span className="bg-secondary text-black py-3 px-5 rounded-lg font-semibold">Max Guests: {housing.maxGuests}</span>
-          </p>
+          <p className="mt-5 whitespace-pre-wrap">{housing.description}</p>
           <div className="mt-2">
             <h2 className="font-semibold pt-5 pb-3 text-xl md:text-2xl">Availability</h2>
             <ul className="list-disc list-inside">
@@ -159,7 +159,6 @@ const HousingDetailPage = () => {
           {lat && lng && (
             <section>
               <h2 className="font-semibold pt-5 pb-3 text-xl md:text-2xl">Location</h2>
-              <p className="text-md md:text-lg flex-auto pb-3">{housing.address}</p>
               <GoogleMaps lat={lat} lng={lng} />
             </section>
           )}

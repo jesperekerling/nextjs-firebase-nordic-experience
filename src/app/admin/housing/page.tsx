@@ -67,13 +67,13 @@ const HousingListPage = () => {
           {housingList.map(housing => (
             <div key={housing.id} className="relative rounded">
               {housing.images && housing.images.length > 0 && (
-                <img src={housing.images[0]} alt={`Thumbnail of ${housing.name}`} className="w-full h-48 object-cover mb-4 rounded" />
+                <img src={housing.images[0]} alt={`Thumbnail of ${housing.name}`} className="w-full h-48 object-cover mb-1 rounded" />
               )}
-              <h2 className="text-lg font-bold py-3">{housing.name}</h2>
-              <p className="text-sm">{housing.description}</p>
+              <h2 className="text-lg font-bold py-2">{housing.name}</h2>
+              <p className="text-sm truncate">{housing.description}</p>
               <p className="text-gray-500 text-sm dark:text-gray-400 pt-1">${housing.pricePerNight}/night</p>
               <Link href={`/admin/housing/edit/${housing.id}`} className="hover:opacity-65">
-                <button className="mt-2 p-2 bg-blue-500 text-white rounded">Edit</button>
+                <button className="mt-2 px-3 py-2 bg-primary text-white rounded">Edit</button>
               </Link>
             </div>
           ))}

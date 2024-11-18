@@ -188,6 +188,20 @@ const EditHousingPage = () => {
     );
   };
 
+  const handleDeleteImage = async (index: number) => {
+    if (!housing) return;
+
+    const updatedImages = housing.images.filter((_, i) => i !== index);
+    setHousing(prevHousing => prevHousing ? { ...prevHousing, images: updatedImages } : null);
+
+    try {
+      const docRef = doc(db, "housing", id);
+      await updateDoc(docRef, { images: updatedImages });
+    } catch (error) {
+      console.error("Error deleting image:", error);
+    }
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -249,7 +263,7 @@ const EditHousingPage = () => {
           <input
             type="number"
             name="maxGuests"
-            value={housing.maxGuests ?? ''} // Ensure the input is always controlled
+            value={housing.maxGuests ?? ''}
             onChange={handleChange}
             className="p-2 border border-gray-300 rounded"
           />
@@ -295,7 +309,7 @@ const EditHousingPage = () => {
                 <button
                   type="button"
                   onClick={() => handleRemoveAvailability(index)}
-                  className="p-2 bg-red-500 text-white rounded"
+                  className="p-2 bg-primary text-white rounded"
                 >
                   Remove Availability
                 </button>
@@ -304,7 +318,7 @@ const EditHousingPage = () => {
             <button
               type="button"
               onClick={handleAddAvailability}
-              className="p-2 bg-green-500 text-white rounded"
+              className="p-2 bg-primary text-white rounded"
             >
               Add Availability
             </button>
@@ -323,16 +337,23 @@ const EditHousingPage = () => {
                 <button
                   type="button"
                   onClick={() => handleOpenModal(index)}
-                  className="p-2 bg-blue-500 text-white rounded"
+                  className="p-2 bg-primary text-white rounded"
                 >
                   Edit
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDeleteImage(index)}
+                  className="p-2 bg-secondary text-black rounded"
+                >
+                  Delete
                 </button>
               </div>
             ))}
             <button
               type="button"
               onClick={handleAddImage}
-              className="p-2 bg-green-500 text-white rounded mt-2"
+              className="p-2 bg-primary text-white rounded mt-2"
             >
               Add New Image
             </button>
@@ -340,10 +361,10 @@ const EditHousingPage = () => {
           <div className="mt-4">
             <h3 className="font-semibold">Upload New Image:</h3>
             <input type="file" onChange={handleImageChange} />
-            <button type="button" onClick={handleUpload} className="p-2 bg-green-500 text-white rounded mt-2">Upload</button>
+            <button type="button" onClick={handleUpload} className="p-2 bg-primary text-white rounded mt-2">Upload</button>
             <progress value={uploadProgress} max="100" className="w-full mt-2" />
           </div>
-          <button type="submit" className="p-2 bg-blue-500 text-white rounded">Save</button>
+          <button type="submit" className="p-2 bg-primary text-white rounded">Save</button>
         </form>
       )}
       <ImageSelectorModal

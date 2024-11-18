@@ -229,7 +229,7 @@ const EditPackage = () => {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Edit Package</h1>
       <p className='pb-10'>
-        <Link href="/admin/packages">
+        <Link href="/admin/">
           Back to packages list
         </Link>
       </p>
@@ -330,7 +330,7 @@ const EditPackage = () => {
                 <button
                   type="button"
                   onClick={() => handleRemoveActivity(index)}
-                  className="p-2 bg-red-500 text-white rounded"
+                  className="p-2 bg-primary text-white rounded"
                 >
                   Remove Activity
                 </button>
@@ -339,7 +339,7 @@ const EditPackage = () => {
             <button
               type="button"
               onClick={handleAddActivity}
-              className="p-2 bg-green-500 text-white rounded"
+              className="p-2 bg-primary text-white rounded"
             >
               Add Activity
             </button>
@@ -358,7 +358,7 @@ const EditPackage = () => {
                 <button
                   type="button"
                   onClick={() => handleOpenModal(index)}
-                  className="p-2 bg-blue-500 text-white rounded"
+                  className="p-2 bg-primary text-white rounded"
                 >
                   Edit
                 </button>
@@ -367,7 +367,7 @@ const EditPackage = () => {
             <button
               type="button"
               onClick={handleAddImage}
-              className="p-2 bg-green-500 text-white rounded mt-2"
+              className="p-2 bg-primary text-white rounded mt-2"
             >
               Add New Image
             </button>
@@ -375,10 +375,10 @@ const EditPackage = () => {
           <div className="mt-4">
             <h3 className="font-semibold">Upload New Image:</h3>
             <input type="file" onChange={handleImageChange} />
-            <button type="button" onClick={handleUpload} className="p-2 bg-green-500 text-white rounded mt-2">Upload</button>
+            <button type="button" onClick={handleUpload} className="p-2 bg-primary text-white rounded mt-2">Upload</button>
             <progress value={uploadProgress} max="100" className="w-full mt-2" />
           </div>
-          <button type="submit" className="p-2 bg-blue-500 text-white rounded">Save</button>
+          <button type="submit" className="p-2 bg-primary text-white rounded">Save</button>
         </form>
       )}
       <ImageSelectorModal

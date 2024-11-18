@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { collection, addDoc, doc, updateDoc } from "firebase/firestore";
 import { db, storage } from "../../../../../firebase/firebaseConfig";
-import { ref, uploadBytesResumable, getDownloadURL, listAll } from "firebase/storage"
+import { ref, uploadBytesResumable, getDownloadURL, listAll } from "firebase/storage";
 import { Housing } from "../../../../types/housing";
 import ImageSelectorModal from "@/components/ImageSelectorModal";
 import Link from 'next/link';
@@ -19,6 +19,7 @@ const AddHousingPage = () => {
     images: [],
     location: new GeoPoint(0, 0),
     availability: [],
+    maxGuests: 1, // Initialize maxGuests
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -58,29 +59,6 @@ const AddHousingPage = () => {
     setHousing(prevHousing => {
       const updatedLocation = { ...prevHousing.location, [name]: parseFloat(value) };
       return { ...prevHousing, location: updatedLocation };
-    });
-  };
-
-  const handleAvailabilityChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setHousing(prevHousing => {
-      const updatedAvailability = [...prevHousing.availability];
-      updatedAvailability[index] = { ...updatedAvailability[index], [name]: name === 'available' ? value === 'true' : value };
-      return { ...prevHousing, availability: updatedAvailability };
-    });
-  };
-
-  const handleAddAvailability = () => {
-    setHousing(prevHousing => {
-      const newAvailability = { date: "", available: false };
-      return { ...prevHousing, availability: [...prevHousing.availability, newAvailability] };
-    });
-  };
-
-  const handleRemoveAvailability = (index: number) => {
-    setHousing(prevHousing => {
-      const updatedAvailability = prevHousing.availability.filter((_, i) => i !== index);
-      return { ...prevHousing, availability: updatedAvailability };
     });
   };
 
@@ -142,6 +120,14 @@ const AddHousingPage = () => {
     );
   };
 
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>{error}</div>;
+  }
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Add New Housing</h1>
@@ -190,12 +176,20 @@ const AddHousingPage = () => {
           onChange={handleChange}
           className="p-2 border border-gray-300 rounded"
         />
+        <label className="mt-4 font-bold">Max Guests</label>
+        <input
+          type="number"
+          name="maxGuests"
+          value={housing.maxGuests}
+          onChange={handleChange}
+          className="p-2 border border-gray-300 rounded"
+        />
         <div className="mt-4">
           <h3 className="font-semibold">Location:</h3>
           <input
             type="number"
             name="latitude"
-            value={housing.location?.latitude || ""}
+            value={housing.location.latitude}
             onChange={handleLocationChange}
             className="p-2 border border-gray-300 rounded mb-2"
             placeholder="Latitude"
@@ -203,52 +197,15 @@ const AddHousingPage = () => {
           <input
             type="number"
             name="longitude"
-            value={housing.location?.longitude || ""}
+            value={housing.location.longitude}
             onChange={handleLocationChange}
             className="p-2 border border-gray-300 rounded mb-2"
             placeholder="Longitude"
           />
         </div>
         <div className="mt-4">
-          <h3 className="font-semibold">Availability:</h3>
-          {housing.availability.map((availability, index) => (
-            <div key={index} className="border p-2 rounded mb-2">
-              <input
-                type="date"
-                name="date"
-                value={availability.date}
-                onChange={(e) => handleAvailabilityChange(index, e)}
-                className="p-2 border border-gray-300 rounded mb-2"
-                placeholder="Date"
-              />
-              <input
-                type="checkbox"
-                name="available"
-                checked={availability.available}
-                onChange={(e) => handleAvailabilityChange(index, e)}
-                className="p-2 border border-gray-300 rounded mb-2"
-                placeholder="Available"
-              />
-              <button
-                type="button"
-                onClick={() => handleRemoveAvailability(index)}
-                className="p-2 bg-red-500 text-white rounded"
-              >
-                Remove Availability
-              </button>
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={handleAddAvailability}
-            className="p-2 bg-green-500 text-white rounded"
-          >
-            Add Availability
-          </button>
-        </div>
-        <div className="mt-4">
           <h3 className="font-semibold">Images:</h3>
-          {housing.images && housing.images.map((url, index) => (
+          {housing.images.map((url, index) => (
             <div key={index} className="flex items-center gap-2 mb-2">
               <input
                 type="text"
@@ -263,6 +220,13 @@ const AddHousingPage = () => {
                 className="p-2 bg-blue-500 text-white rounded"
               >
                 Edit
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDeleteImage(index)}
+                className="p-2 bg-red-500 text-white rounded"
+              >
+                Delete
               </button>
             </div>
           ))}
