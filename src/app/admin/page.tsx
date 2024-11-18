@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from "react";
 import { fetchPackages } from "../../utils/fetchPackages";
-import { Package } from "../../types/package";
+import { Package } from "@/types/package";
 import Link from 'next/link';
 
 const AdminPackagesPage = () => {
