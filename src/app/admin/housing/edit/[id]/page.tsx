@@ -24,51 +24,30 @@ const EditHousingPage = () => {
   const router = useRouter();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        getHousing();
-        fetchImages();
-      } else {
+    const fetchHousing = async () => {
+      try {
+        if (!id) {
+          setError("Invalid housing ID.");
+          setLoading(false);
+          return;
+        }
+        const docRef = doc(db, "housing", id);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setHousing({ id: docSnap.id, ...docSnap.data() } as Housing);
+        } else {
+          setError("Housing not found.");
+        }
+      } catch (error) {
+        setError("Failed to fetch housing.");
+        console.error("Error fetching housing:", error);
+      } finally {
         setLoading(false);
-        setError("User not authenticated.");
       }
-    });
+    };
 
-    return () => unsubscribe();
-  }, []);
-
-  const getHousing = async () => {
-    try {
-      if (!id) {
-        setError("Invalid housing ID.");
-        setLoading(false);
-        return;
-      }
-      const docRef = doc(db, "housing", id);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        setHousing({ id: docSnap.id, ...docSnap.data() } as Housing);
-      } else {
-        setError("Housing not found.");
-      }
-    } catch (error) {
-      setError("Failed to fetch housing.");
-      console.error("Error fetching housing:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchImages = async () => {
-    try {
-      const imagesRef = ref(storage, 'housing-images/');
-      const imagesList = await listAll(imagesRef);
-      const urls = await Promise.all(imagesList.items.map(item => getDownloadURL(item)));
-      // Use the imageList if needed, otherwise remove this comment
-    } catch (error) {
-      console.error("Error fetching images:", error);
-    }
-  };
+    fetchHousing();
+  }, [id]);
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -182,7 +161,6 @@ const EditHousingPage = () => {
             return { ...prevHousing, images: updatedImages };
           });
           alert('Upload successful!');
-          fetchImages(); // Refresh the image list after upload
         });
       }
     );
