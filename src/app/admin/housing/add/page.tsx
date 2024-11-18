@@ -1,9 +1,9 @@
 'use client';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { collection, addDoc, doc, updateDoc } from "firebase/firestore";
+import { collection, addDoc, updateDoc } from "firebase/firestore";
 import { db, storage } from "../../../../../firebase/firebaseConfig";
-import { ref, uploadBytesResumable, getDownloadURL, listAll } from "firebase/storage";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { Housing } from "../../../../types/housing";
 import ImageSelectorModal from "@/components/ImageSelectorModal";
 import Link from 'next/link';
@@ -24,7 +24,6 @@ const AddHousingPage = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [imageList, setImageList] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [newImage, setNewImage] = useState<File | null>(null);

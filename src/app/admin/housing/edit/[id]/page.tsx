@@ -3,11 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useParams } from 'next/navigation';
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { db, storage, auth } from "../../../../../../firebase/firebaseConfig";
-import { ref, uploadBytesResumable, getDownloadURL, listAll } from 'firebase/storage';
+import { db, storage } from "../../../../../../firebase/firebaseConfig";
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { Housing } from "../../../../../types/housing";
 import ImageSelectorModal from "@/components/ImageSelectorModal";
-import { onAuthStateChanged } from "firebase/auth";
 import Link from 'next/link';
 import Image from 'next/image'; // Ensure this import is correct
 import { GeoPoint } from "firebase/firestore";
