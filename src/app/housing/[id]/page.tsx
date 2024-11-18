@@ -6,8 +6,9 @@ import Link from "next/link";
 import GoogleMaps from "@/components/GoogleMaps";
 import Head from "next/head";
 
-export async function generateMetadata({ params }: { params: { id: string } }) {
-  const docRef = doc(db, "housing", params.id);
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const docRef = doc(db, "housing", id);
   const docSnap = await getDoc(docRef);
   const housing = docSnap.exists() ? (docSnap.data() as Housing) : null;
 
@@ -17,8 +18,8 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
   };
 }
 
-const HousingDetailPage = async ({ params }: { params: { id: string } }) => {
-  const { id } = params;
+const HousingDetailPage = async ({ params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params;
 
   let housing: Housing | null = null;
   let error: string | null = null;
@@ -68,11 +69,11 @@ const HousingDetailPage = async ({ params }: { params: { id: string } }) => {
         </Link>
         <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold my-7 md:my-10">{housing?.name}</h1>
         {housing?.images && housing.images.length > 0 && <HousingDetailClient housing={housing} lat={lat} lng={lng} />}
-        <p className="mt-5">
-          <button className="bg-primary text-white px-4 py-3 rounded-lg w-full font-semibold hover:opacity-80">
-            Book now
-          </button>
-        </p>
+          <p className="mt-5">
+            <button className="bg-primary text-white px-4 py-3 rounded-lg w-full font-semibold hover:opacity-80">
+              Book now
+            </button>
+          </p>
         <div className="flex py-5">
           <p className="my-5">
             <span className="bg-secondary text-black py-3 px-5 rounded-lg font-semibold">{housing?.city}</span>
@@ -80,11 +81,11 @@ const HousingDetailPage = async ({ params }: { params: { id: string } }) => {
           </p>
           <p className="text-black flex-auto text-right font-bold px-1">${housing?.pricePerNight} per night</p>
         </div>
-        
-        <p className="text-md md:text-lg flex-auto PB-5">{housing?.description}</p>
 
-        <h2 className="text-xl md:text-2xl font-bold mt-7 md:mt-10">Location</h2>
-        <p className="my-4">{housing?.address}</p>
+        <p className="text-md md:text-lg flex-auto">{housing?.description}</p>
+
+        <h2 className="text-xl md:text-2xl font-bold mt-7 md:mt-10 mb-3">Location</h2>
+        <p className="text-md md:text-lg pb-3">{housing?.address}</p>
         <GoogleMaps lat={lat} lng={lng} />
       </div>
     </>
