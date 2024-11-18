@@ -21,6 +21,7 @@ const EditPackagePage = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [newImage, setNewImage] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [imageList, setImageList] = useState<string[]>([]);
   const router = useRouter();
 
   const fetchImages = useCallback(async () => {
@@ -183,7 +184,7 @@ const EditPackagePage = () => {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Edit Package</h1>
       <p className='pb-10'>
-        <Link href="/admin/packages">
+        <Link href="/admin/">
           Back to package list
         </Link>
       </p>
@@ -233,14 +234,6 @@ const EditPackagePage = () => {
             type="number"
             name="days"
             value={pkg.days}
-            onChange={handleChange}
-            className="p-2 border border-gray-300 rounded"
-          />
-          <label className="mt-4 font-bold">Max Guests</label>
-          <input
-            type="number"
-            name="maxGuests"
-            value={pkg.maxGuests ?? ''}
             onChange={handleChange}
             className="p-2 border border-gray-300 rounded"
           />
@@ -318,6 +311,7 @@ const EditPackagePage = () => {
         onClose={() => setIsModalOpen(false)}
         folderPath="package-images/"
         onSelectImage={handleImageSelect}
+        imageList={imageList} // Pass imageList to ImageSelectorModal
       />
     </div>
   );

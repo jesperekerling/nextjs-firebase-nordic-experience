@@ -1,18 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuth } from 'firebase-admin/auth';
-import { initializeApp, applicationDefault } from 'firebase-admin/app';
-import admin from 'firebase-admin';
-
-if (!admin.apps.length) {
-  initializeApp({
-    credential: applicationDefault(),
-  });
-}
+import { auth } from '../../../../firebase/firebaseAdmin';
 
 export async function POST(req: NextRequest) {
   try {
     const { uid } = await req.json();
-    const user = await getAuth().getUser(uid);
+    const user = await auth.getUser(uid);
     const customClaims = user.customClaims || {};
 
     if (customClaims.role) {

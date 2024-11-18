@@ -76,7 +76,7 @@ const AdminPackagesPage = () => {
               <h2 className="text-lg font-bold py-2">{pkg.name}</h2>
               <p className="text-sm truncate">{pkg.description}</p>
               <p className="text-gray-500 text-sm dark:text-gray-400 pt-1">${pkg.price}/person - Days: {pkg.days}</p>
-              <Link href={`/admin/package/edit/${pkg.id}`} className="hover:opacity-65">
+              <Link href={`/admin/packages/edit/${pkg.id}`} className="hover:opacity-65">
                 <button className="mt-2 px-3 py-2 bg-primary text-white rounded">Edit</button>
               </Link>
             </div>
