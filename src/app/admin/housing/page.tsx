@@ -1,9 +1,11 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../../../firebase/firebaseConfig";
 import { Housing } from "@/types/housing";
+
 
 const HousingListPage = () => {
   const [housingList, setHousingList] = useState<Housing[]>([]);
@@ -67,7 +69,13 @@ const HousingListPage = () => {
           {housingList.map(housing => (
             <div key={housing.id} className="relative rounded">
               {housing.images && housing.images.length > 0 && (
-                <img src={housing.images[0]} alt={`Thumbnail of ${housing.name}`} className="w-full h-48 object-cover mb-1 rounded" />
+                <Image
+                  src={housing.images[0]}
+                  alt={`Thumbnail of ${housing.name}`}
+                  width={600}
+                  height={600}
+                  className="w-full h-48 object-cover mb-1 rounded"
+                />
               )}
               <h2 className="text-lg font-bold py-2">{housing.name}</h2>
               <p className="text-sm truncate">{housing.description}</p>
