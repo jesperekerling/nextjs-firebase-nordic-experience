@@ -1,9 +1,9 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { collection, addDoc, updateDoc } from "firebase/firestore";
 import { db, storage } from "../../../../../firebase/firebaseConfig";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { ref, uploadBytesResumable, getDownloadURL, listAll } from "firebase/storage";
 import { Housing } from "../../../../types/housing";
 import ImageSelectorModal from "@/components/ImageSelectorModal";
 import Link from 'next/link';
@@ -29,6 +29,21 @@ const AddHousingPage = () => {
   const [newImage, setNewImage] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const router = useRouter();
+
+  useEffect(() => {
+    const fetchImages = async () => {
+      try {
+        const imagesRef = ref(storage, 'housing-images/');
+        const imagesList = await listAll(imagesRef);
+        await Promise.all(imagesList.items.map(item => getDownloadURL(item)));
+        // Use the imageList if needed, otherwise remove this comment
+      } catch (error) {
+        console.error("Error fetching images:", error);
+      }
+    };
+
+    fetchImages();
+  }, []); // Add fetchImages to the dependency array if it is defined outside the useEffect
 
   const handleAddHousing = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -114,7 +129,6 @@ const AddHousingPage = () => {
             return { ...prevHousing, images: updatedImages };
           });
           alert('Upload successful!');
-          fetchImages(); // Refresh the image list after upload
         });
       }
     );
@@ -216,9 +230,9 @@ const AddHousingPage = () => {
               <Image
                 src={url}
                 alt={`Image ${index}`}
-                className="w-16 h-16 object-cover"
                 width={64}
                 height={64}
+                className="w-16 h-16 object-cover"
               />
               <button
                 type="button"
