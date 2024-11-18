@@ -61,7 +61,7 @@ const HousingDetailPage = async ({ params }: { params: Promise<{ id: string }> }
         <title>{housing?.name} - Nordic Experiences</title>
         <meta name="description" content={housing?.description} />
       </Head>
-      <div className="container mx-auto p-4">
+      <div>
         <Link href="/housing">
           <button className="bg-primary text-white py-2 px-3 rounded-lg font-semibold text-sm md:text-md hover:opacity-80">
             Back to housing list
@@ -75,11 +75,11 @@ const HousingDetailPage = async ({ params }: { params: Promise<{ id: string }> }
             </button>
           </p>
         <div className="flex py-5">
-          <p className="my-5">
+          <p className="my-4">
             <span className="bg-secondary text-black py-3 px-5 rounded-lg font-semibold">{housing?.city}</span>
             <span className="bg-secondary text-black py-3 px-5 mx-4 rounded-lg font-semibold">{housing?.maxGuests} guests</span>
           </p>
-          <p className="text-black flex-auto text-right font-bold px-1">${housing?.pricePerNight} per night</p>
+          <p className="text-black flex-auto text-right font-bold px-1 py-4">${housing?.pricePerNight} per night</p>
         </div>
 
         <p className="text-md md:text-lg flex-auto">{housing?.description}</p>

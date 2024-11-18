@@ -48,7 +48,7 @@ const PackageDetail = async ({ params }: { params: Promise<{ id: string }> }) =>
   const lng = location?.longitude || defaultLng;
 
   return (
-    <div className="container mx-auto p-4">
+    <div>
       <Link href="/">
         <button className="bg-primary text-white py-2 px-3 rounded-lg font-semibold text-sm md:text-md hover:opacity-80">
           Back to packages
