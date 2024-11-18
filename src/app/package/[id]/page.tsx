@@ -5,8 +5,9 @@ import PackageDetailClient from "./PackageDetailClient";
 import Link from "next/link";
 import GoogleMaps from "@/components/GoogleMaps";
 
-export async function generateMetadata({ params }: { params: { id: string } }) {
-  const docRef = doc(db, "packages", params.id);
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const docRef = doc(db, "packages", id);
   const docSnap = await getDoc(docRef);
   const pkg = docSnap.exists() ? (docSnap.data() as Package) : null;
 
@@ -16,8 +17,8 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
   };
 }
 
-const PackageDetail = async ({ params }: { params: { id: string } }) => {
-  const { id } = params;
+const PackageDetail = async ({ params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params;
 
   let pkg: Package | null = null;
   let error: string | null = null;
