@@ -1,21 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getUserClaims } from '../../../../firebase/firebaseAdmin';
+import { getAuth } from 'firebase-admin/auth';
+import { initializeApp, applicationDefault } from 'firebase-admin/app';
+import admin from 'firebase-admin';
+
+if (!admin.apps.length) {
+  initializeApp({
+    credential: applicationDefault(),
+  });
+}
 
 export async function POST(req: NextRequest) {
-  const { uid } = await req.json();
-
-  if (!uid) {
-    return NextResponse.json({ message: 'Missing uid' }, { status: 400 });
-  }
-
   try {
-    const claims = await getUserClaims(uid);
-    if (claims && claims.admin) {
-      return NextResponse.json({ role: 'admin' }, { status: 200 });
+    const { uid } = await req.json();
+    const user = await getAuth().getUser(uid);
+    const customClaims = user.customClaims || {};
+
+    if (customClaims.role) {
+      return NextResponse.json({ role: customClaims.role });
     } else {
-      return NextResponse.json({ role: 'user' }, { status: 200 });
+      return NextResponse.json({ message: 'No role assigned to this user.' });
     }
   } catch (error) {
-    return NextResponse.json({ message: `Error: ${(error as Error).message}` }, { status: 500 });
+    console.error('Error fetching user role:', error);
+    return NextResponse.json({ message: 'Error fetching user role.' }, { status: 500 });
   }
 }
