@@ -316,4 +316,4 @@ const addDataToFirebase = async () => {
   }
 };
 
-addDataToFirebase();
+export default addDataToFirebase;
