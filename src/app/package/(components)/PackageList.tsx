@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from "next/link";
 import ThumbnailNavigator from "./ThumbnailNavigator";
-import { Package } from "../../../types/package";
+import { Package } from "@/types/package";
 
 interface PackageListProps {
   packages: Package[];
