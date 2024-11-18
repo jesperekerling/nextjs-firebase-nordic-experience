@@ -57,6 +57,7 @@ const PackageList: React.FC<PackageListProps> = ({ packages = [], selectedCatego
           value={selectedCity || ''}
           onChange={(e) => setSelectedCity(e.target.value || null)}
           className="border-black rounded-md px-3 py-2 m-2 text-sm text-black"
+          aria-label="Select a city"
         >
           <option value="">All Cities</option>
           {cities.map((city) => (
