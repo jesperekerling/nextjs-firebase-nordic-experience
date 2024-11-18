@@ -86,6 +86,8 @@ const PackageDetail = async ({ params }: { params: Promise<{ id: string }> }) =>
           )}
         </ul>
       </div>
+
+      <h2 className="text-xl md:text-2xl font-bold my-7 md:my-10">Location</h2>
       <GoogleMaps lat={lat} lng={lng} />
     </div>
   );
