@@ -21,7 +21,7 @@ export async function generateStaticParams() {
 }
 
 const PackageDetail = async ({ params }: PackageDetailProps) => {
-  const { id } = await params;
+  const { id } = params;
 
   let pkg: Package | null = null;
   let error: string | null = null;
@@ -96,10 +96,7 @@ const PackageDetail = async ({ params }: PackageDetailProps) => {
           )}
         </ul>
       </div>
-      <section>
-        <h2 className="font-semibold pt-5 pb-3 text-xl md:text-2xl">Location</h2>
-        <GoogleMaps lat={lat} lng={lng} />
-      </section>
+      <GoogleMaps lat={lat} lng={lng} />
     </div>
   );
 };
