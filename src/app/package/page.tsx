@@ -1,5 +1,5 @@
 import { fetchPackages } from "../../../utils/fetchPackages";
-import PackageListClient from "./PackageListClient";
+import PackageListClient from "../package/(components)/PackageList";
 
 const PackagePage = async ({ searchParams }) => {
   const selectedCategory = searchParams.category || null;
