@@ -1,11 +1,9 @@
-'use client'
 import React from "react";
-import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { AuthProvider } from "../context/AuthContext";
+import AuthProviderClient from "../components/AuthProviderClient";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -18,8 +16,6 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
-
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -27,19 +23,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        
-      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AuthProvider>
+        <AuthProviderClient>
           <Header />
           <main className="mx-auto max-w-screen-2xl min-h-96 md:p-10 p-4">
             {children}
           </main>
           <Footer />
-        </AuthProvider>
+        </AuthProviderClient>
       </body>
     </html>
   );

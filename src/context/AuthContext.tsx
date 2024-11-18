@@ -18,10 +18,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
+        console.log('User logged in:', user); // Add logging
         setUser(user);
         const tokenResult = await getIdTokenResult(user);
         setIsAdmin(tokenResult.claims.role === 'admin');
       } else {
+        console.log('User logged out'); // Add logging
         setUser(null);
         setIsAdmin(false);
       }
@@ -30,7 +32,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => unsubscribe();
   }, []);
 
-  return <AuthContext.Provider value={{ user, isAdmin }}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ user, isAdmin }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 export const useAuth = () => useContext(AuthContext);

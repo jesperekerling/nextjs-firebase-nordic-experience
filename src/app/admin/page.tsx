@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { fetchPackages } from "../../utils/fetchPackages";
 import { Package } from "@/types/package";
 import Link from 'next/link';
+import Image from 'next/image';
 
 const AdminPackagesPage = () => {
   const [packages, setPackages] = useState<Package[]>([]);
@@ -55,7 +56,13 @@ const AdminPackagesPage = () => {
           packages.map(pkg => (
             <div key={pkg.id} className="border p-4 rounded shadow">
               {pkg.images && pkg.images.length > 0 && (
-                <img src={pkg.images[0]} alt="Package Image" className="w-full h-1/3 object-cover mb-4 rounded" />
+                <Image
+                  src={pkg.images[0]}
+                  alt="Package Image"
+                  className="w-full h-1/3 object-cover mb-4 rounded"
+                  width={600}
+                  height={600}
+                />
               )}
               <h2 className="text-xl font-bold">{pkg.name}</h2>
               <p className="text-gray-500">Category: {pkg.category}</p>

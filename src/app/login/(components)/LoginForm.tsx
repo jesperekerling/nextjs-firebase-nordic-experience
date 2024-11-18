@@ -1,28 +1,32 @@
 'use client'
-import { useState } from "react";
-import { auth, signInWithEmailAndPassword, googleProvider, signInWithPopup } from "../../../../firebase/firebaseConfig";
+import { useState, useEffect } from "react";
+import { auth, signInWithEmailAndPassword, googleProvider, signInWithRedirect } from "../../../../firebase/firebaseConfig";
 import Link from "next/link";
-import { useAuth } from "../../../context/AuthContext"; // Import the useAuth hook
+import { useAuth } from "../../../context/AuthContext";
 
 function LoginForm() {
-  const { user } = useAuth(); // Get the current user from the useAuth hook
+  const { user } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    console.log('Current user:', user); // Add logging
+  }, [user]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await signInWithEmailAndPassword(auth, email, password);
-    } catch (err) {
+    } catch {
       setError("Failed to login. Please check your credentials.");
     }
   };
 
   const handleGoogleLogin = async () => {
     try {
-      await signInWithPopup(auth, googleProvider);
-    } catch (err) {
+      await signInWithRedirect(auth, googleProvider);
+    } catch {
       setError("Failed to login with Google.");
     }
   };
