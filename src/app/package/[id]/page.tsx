@@ -1,6 +1,3 @@
-'use client';
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../../../firebase/firebaseConfig";
 import { Package } from "@/types/package";
@@ -8,36 +5,34 @@ import PackageDetailClient from "./PackageDetailClient";
 import Link from "next/link";
 import GoogleMaps from "@/components/GoogleMaps";
 
-const PackageDetail = () => {
-  const { id } = useParams<{ id: string }>(); // Ensure useParams is correctly typed
+export async function generateMetadata({ params }: { params: { id: string } }) {
+  const docRef = doc(db, "packages", params.id);
+  const docSnap = await getDoc(docRef);
+  const pkg = docSnap.exists() ? (docSnap.data() as Package) : null;
 
-  const [pkg, setPkg] = useState<Package | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  return {
+    title: pkg ? `${pkg.name} - Nordic Experiences` : "Package not found - Nordic Experiences",
+    description: pkg ? pkg.description : "Package not found",
+  };
+}
 
-  useEffect(() => {
-    const fetchPackage = async () => {
-      try {
-        const docRef = doc(db, "packages", id);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setPkg({ id: docSnap.id, ...docSnap.data() } as Package);
-        } else {
-          setError("Package not found.");
-        }
-      } catch (error) {
-        setError("Failed to fetch package.");
-        console.error("Error fetching package:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+const PackageDetail = async ({ params }: { params: { id: string } }) => {
+  const { id } = params;
 
-    fetchPackage();
-  }, [id]);
+  let pkg: Package | null = null;
+  let error: string | null = null;
 
-  if (loading) {
-    return <div>Loading...</div>;
+  try {
+    const docRef = doc(db, "packages", id);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      pkg = { id: docSnap.id, ...docSnap.data() } as Package;
+    } else {
+      error = "Package not found.";
+    }
+  } catch (err) {
+    error = "Failed to fetch package.";
+    console.error("Error fetching package:", err);
   }
 
   if (error) {
