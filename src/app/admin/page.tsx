@@ -25,6 +25,15 @@ const AdminPackagesPage = () => {
       setLoading(false);
     }
   };
+
+  const isValidUrl = (url: string) => {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  };
   
   if (loading) {
     return <div>Loading...</div>;
@@ -54,38 +63,21 @@ const AdminPackagesPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {packages && packages.length > 0 ? (
           packages.map(pkg => (
-            <div key={pkg.id} className="border p-4 rounded shadow">
-              {pkg.images && pkg.images.length > 0 && (
+            <div key={pkg.id} className="relative rounded">
+              {pkg.images && pkg.images.length > 0 && isValidUrl(pkg.images[0]) && (
                 <Image
                   src={pkg.images[0]}
-                  alt="Package Image"
-                  className="w-full h-1/3 object-cover mb-4 rounded"
+                  alt={`Thumbnail of ${pkg.name}`}
                   width={600}
                   height={600}
+                  className="w-full h-48 object-cover mb-1 rounded"
                 />
               )}
-              <h2 className="text-xl font-bold">{pkg.name}</h2>
-              <p className="text-gray-500">Category: {pkg.category}</p>
-              <p className="text-gray-500">City: {pkg.city}</p>
-              <p>{pkg.description}</p>
-              <p className="text-gray-500">Price: ${pkg.price}</p>
-              <p className="text-gray-500">Days: {pkg.days}</p>
-              <div className="mt-2">
-                <h3 className="font-semibold">Activities:</h3>
-                <ul className="list-disc list-inside">
-                  {pkg.activities && pkg.activities.length > 0 ? (
-                    pkg.activities.map((activity, index) => (
-                      <li key={index}>
-                        <strong>{activity.name}</strong>: {activity.description} ({activity.time})
-                      </li>
-                    ))
-                  ) : (
-                    <li>No activities available.</li>
-                  )}
-                </ul>
-              </div>
-              <Link href={`/admin/packages/edit/${pkg.id}`}>
-                <button className="mt-4 p-2 bg-primary text-white rounded">Edit</button>
+              <h2 className="text-lg font-bold py-2">{pkg.name}</h2>
+              <p className="text-sm truncate">{pkg.description}</p>
+              <p className="text-gray-500 text-sm dark:text-gray-400 pt-1">${pkg.price}/person - Days: {pkg.days}</p>
+              <Link href={`/admin/package/edit/${pkg.id}`} className="hover:opacity-65">
+                <button className="mt-2 px-3 py-2 bg-primary text-white rounded">Edit</button>
               </Link>
             </div>
           ))

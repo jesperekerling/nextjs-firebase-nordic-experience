@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect } from "react";
-import { auth, signInWithEmailAndPassword, googleProvider, signInWithRedirect } from "../../../../firebase/firebaseConfig";
+import { auth, signInWithEmailAndPassword, googleProvider, signInWithPopup } from "../../../../firebase/firebaseConfig";
 import Link from "next/link";
 import { useAuth } from "../../../context/AuthContext";
 
@@ -25,7 +25,7 @@ function LoginForm() {
 
   const handleGoogleLogin = async () => {
     try {
-      await signInWithRedirect(auth, googleProvider);
+      await signInWithPopup(auth, googleProvider);
     } catch {
       setError("Failed to login with Google.");
     }

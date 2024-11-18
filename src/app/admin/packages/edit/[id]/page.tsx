@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useParams } from 'next/navigation';
 import { doc, getDoc, updateDoc } from "firebase/firestore";
@@ -9,60 +9,21 @@ import { Package } from "../../../../../types/package";
 import ImageSelectorModal from "@/components/ImageSelectorModal";
 import { onAuthStateChanged } from "firebase/auth";
 import Link from 'next/link';
-import { User, GeoPoint } from "firebase/firestore";
+import Image from 'next/image';
+import { GeoPoint } from "firebase/firestore";
 
-const EditPackage = () => {
+const EditPackagePage = () => {
   const { id } = useParams<{ id: string }>(); // Ensure useParams is correctly typed
   const [pkg, setPkg] = useState<Package | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [imageList, setImageList] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [newImage, setNewImage] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [user, setUser] = useState<User | null>(null); // Define the user state
   const router = useRouter();
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUser(user);
-        getPackage();
-        fetchImages();
-      } else {
-        setUser(null);
-        setLoading(false);
-        setError("User not authenticated.");
-      }
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  const getPackage = async () => {
-    try {
-      if (!id) {
-        setError("Invalid package ID.");
-        setLoading(false);
-        return;
-      }
-      const docRef = doc(db, "packages", id);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        setPkg({ id: docSnap.id, ...docSnap.data() } as Package);
-      } else {
-        setError("Package not found.");
-      }
-    } catch (error) {
-      setError("Failed to fetch package.");
-      console.error("Error fetching package:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchImages = async () => {
+  const fetchImages = useCallback(async () => {
     try {
       const imagesRef = ref(storage, 'images/');
       const imagesList = await listAll(imagesRef);
@@ -71,7 +32,38 @@ const EditPackage = () => {
     } catch (error) {
       console.error("Error fetching images:", error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    const getPackage = async () => {
+      try {
+        const docRef = doc(db, "packages", id);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setPkg({ id: docSnap.id, ...docSnap.data() } as Package);
+        } else {
+          setError("Package not found.");
+        }
+      } catch (error) {
+        setError("Failed to fetch package.");
+        console.error("Error fetching package:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        getPackage();
+        fetchImages();
+      } else {
+        setLoading(false);
+        setError("User not authenticated.");
+      }
+    });
+
+    return () => unsubscribe();
+  }, [id, fetchImages]);
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,58 +93,6 @@ const EditPackage = () => {
       if (!prevPkg) return null;
       const updatedLocation = { ...prevPkg.location, [name]: parseFloat(value) };
       return { ...prevPkg, location: updatedLocation };
-    });
-  };
-
-  const handleAvailabilityChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setPkg(prevPkg => {
-      if (!prevPkg) return null;
-      const updatedAvailability = [...prevPkg.availability];
-      updatedAvailability[index] = { ...updatedAvailability[index], [name]: name === 'available' ? value === 'true' : value };
-      return { ...prevPkg, availability: updatedAvailability };
-    });
-  };
-
-  const handleAddAvailability = () => {
-    setPkg(prevPkg => {
-      if (!prevPkg) return null;
-      const newAvailability = { date: "", available: false };
-      return { ...prevPkg, availability: [...prevPkg.availability, newAvailability] };
-    });
-  };
-
-  const handleRemoveAvailability = (index: number) => {
-    setPkg(prevPkg => {
-      if (!prevPkg) return null;
-      const updatedAvailability = prevPkg.availability.filter((_, i) => i !== index);
-      return { ...prevPkg, availability: updatedAvailability };
-    });
-  };
-
-  const handleActivityChange = (index: number, e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setPkg(prevPkg => {
-      if (!prevPkg) return null;
-      const updatedActivities = [...prevPkg.activities];
-      updatedActivities[index] = { ...updatedActivities[index], [name]: value };
-      return { ...prevPkg, activities: updatedActivities };
-    });
-  };
-
-  const handleAddActivity = () => {
-    setPkg(prevPkg => {
-      if (!prevPkg) return null;
-      const newActivity = { name: "", description: "", time: "" };
-      return { ...prevPkg, activities: [...prevPkg.activities, newActivity] };
-    });
-  };
-
-  const handleRemoveActivity = (index: number) => {
-    setPkg(prevPkg => {
-      if (!prevPkg) return null;
-      const updatedActivities = prevPkg.activities.filter((_, i) => i !== index);
-      return { ...prevPkg, activities: updatedActivities };
     });
   };
 
@@ -191,7 +131,7 @@ const EditPackage = () => {
   const handleUpload = () => {
     if (!newImage) return;
 
-    const storageRef = ref(storage, `images/${newImage.name}`);
+    const storageRef = ref(storage, `package-images/${newImage.name}`);
     const uploadTask = uploadBytesResumable(storageRef, newImage);
 
     uploadTask.on(
@@ -217,6 +157,20 @@ const EditPackage = () => {
     );
   };
 
+  const handleDeleteImage = async (index: number) => {
+    if (!pkg) return;
+
+    const updatedImages = pkg.images.filter((_, i) => i !== index);
+    setPkg(prevPkg => prevPkg ? { ...prevPkg, images: updatedImages } : null);
+
+    try {
+      const docRef = doc(db, "packages", id);
+      await updateDoc(docRef, { images: updatedImages });
+    } catch (error) {
+      console.error("Error deleting image:", error);
+    }
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -229,25 +183,17 @@ const EditPackage = () => {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Edit Package</h1>
       <p className='pb-10'>
-        <Link href="/admin/">
-          Back to packages list
+        <Link href="/admin/packages">
+          Back to package list
         </Link>
       </p>
       {pkg && (
         <form onSubmit={handleUpdate} className="flex flex-col gap-4">
-          <label className="font-bold">Title</label>
+          <label className="font-bold">Name</label>
           <input
             type="text"
             name="name"
             value={pkg.name}
-            onChange={handleChange}
-            className="p-2 border border-gray-300 rounded"
-          />
-          <label className="mt-4 font-bold">Category</label>
-          <input
-            type="text"
-            name="category"
-            value={pkg.category}
             onChange={handleChange}
             className="p-2 border border-gray-300 rounded"
           />
@@ -259,6 +205,14 @@ const EditPackage = () => {
             onChange={handleChange}
             className="p-2 border border-gray-300 rounded"
           />
+          <label className="mt-4 font-bold">Address</label>
+          <input
+            type="text"
+            name="address"
+            value={pkg.address}
+            onChange={handleChange}
+            className="p-2 border border-gray-300 rounded"
+          />
           <label className="mt-4 font-bold">Description</label>
           <textarea
             name="description"
@@ -266,7 +220,7 @@ const EditPackage = () => {
             onChange={handleChange}
             className="p-2 border border-gray-300 rounded"
           />
-          <label className="mt-4 font-bold">Price and Days</label>
+          <label className="mt-4 font-bold">Price Per Person</label>
           <input
             type="number"
             name="price"
@@ -274,10 +228,19 @@ const EditPackage = () => {
             onChange={handleChange}
             className="p-2 border border-gray-300 rounded"
           />
+          <label className="mt-4 font-bold">Days</label>
           <input
             type="number"
             name="days"
             value={pkg.days}
+            onChange={handleChange}
+            className="p-2 border border-gray-300 rounded"
+          />
+          <label className="mt-4 font-bold">Max Guests</label>
+          <input
+            type="number"
+            name="maxGuests"
+            value={pkg.maxGuests ?? ''}
             onChange={handleChange}
             className="p-2 border border-gray-300 rounded"
           />
@@ -301,50 +264,6 @@ const EditPackage = () => {
             />
           </div>
           <div className="mt-4">
-            <h3 className="font-semibold">Activities:</h3>
-            {pkg.activities.map((activity, index) => (
-              <div key={index} className="border p-2 rounded mb-2">
-                <input
-                  type="text"
-                  name="name"
-                  value={activity.name}
-                  onChange={(e) => handleActivityChange(index, e)}
-                  className="p-2 border border-gray-300 rounded mb-2"
-                  placeholder="Activity Name"
-                />
-                <textarea
-                  name="description"
-                  value={activity.description}
-                  onChange={(e) => handleActivityChange(index, e)}
-                  className="p-2 border border-gray-300 rounded mb-2"
-                  placeholder="Activity Description"
-                />
-                <input
-                  type="text"
-                  name="time"
-                  value={activity.time}
-                  onChange={(e) => handleActivityChange(index, e)}
-                  className="p-2 border border-gray-300 rounded mb-2"
-                  placeholder="Activity Time"
-                />
-                <button
-                  type="button"
-                  onClick={() => handleRemoveActivity(index)}
-                  className="p-2 bg-primary text-white rounded"
-                >
-                  Remove Activity
-                </button>
-              </div>
-            ))}
-            <button
-              type="button"
-              onClick={handleAddActivity}
-              className="p-2 bg-primary text-white rounded"
-            >
-              Add Activity
-            </button>
-          </div>
-          <div className="mt-4">
             <h3 className="font-semibold">Images:</h3>
             {pkg.images && pkg.images.map((url, index) => (
               <div key={index} className="flex items-center gap-2 mb-2">
@@ -354,20 +273,33 @@ const EditPackage = () => {
                   readOnly
                   className="p-2 border border-gray-300 rounded flex-1"
                 />
-                <img src={url} alt={`Image ${index}`} className="w-16 h-16 object-cover" />
+                <Image
+                  src={url}
+                  alt={`Image ${index}`}
+                  width={64}
+                  height={64}
+                  className="w-16 h-16 object-cover"
+                />
                 <button
                   type="button"
                   onClick={() => handleOpenModal(index)}
-                  className="p-2 bg-primary text-white rounded"
+                  className="p-2 bg-blue-500 text-white rounded"
                 >
                   Edit
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDeleteImage(index)}
+                  className="p-2 bg-red-500 text-white rounded"
+                >
+                  Delete
                 </button>
               </div>
             ))}
             <button
               type="button"
               onClick={handleAddImage}
-              className="p-2 bg-primary text-white rounded mt-2"
+              className="p-2 bg-green-500 text-white rounded mt-2"
             >
               Add New Image
             </button>
@@ -375,20 +307,20 @@ const EditPackage = () => {
           <div className="mt-4">
             <h3 className="font-semibold">Upload New Image:</h3>
             <input type="file" onChange={handleImageChange} />
-            <button type="button" onClick={handleUpload} className="p-2 bg-primary text-white rounded mt-2">Upload</button>
+            <button type="button" onClick={handleUpload} className="p-2 bg-green-500 text-white rounded mt-2">Upload</button>
             <progress value={uploadProgress} max="100" className="w-full mt-2" />
           </div>
-          <button type="submit" className="p-2 bg-primary text-white rounded">Save</button>
+          <button type="submit" className="p-2 bg-blue-500 text-white rounded">Save</button>
         </form>
       )}
       <ImageSelectorModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        folderPath="images/"
+        folderPath="package-images/"
         onSelectImage={handleImageSelect}
       />
     </div>
   );
 };
 
-export default EditPackage;
+export default EditPackagePage;
