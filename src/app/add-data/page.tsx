@@ -1,6 +1,6 @@
 'use client'
 import { useEffect } from 'react';
-import addPackagesToFirestore from '../../utils/addDataToFirebase';
+import addPackagesToFirestore from './../../utils/addDataToFirebase';
 
 const AddPackages = () => {
   useEffect(() => {
