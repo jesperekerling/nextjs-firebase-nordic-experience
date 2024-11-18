@@ -7,6 +7,7 @@ import { ref, uploadBytesResumable, getDownloadURL, listAll } from "firebase/sto
 import { Housing } from "../../../../types/housing";
 import ImageSelectorModal from "@/components/ImageSelectorModal";
 import Link from 'next/link';
+import Image from 'next/image';
 import { GeoPoint } from "firebase/firestore";
 
 const AddHousingPage = () => {
@@ -213,7 +214,13 @@ const AddHousingPage = () => {
                 readOnly
                 className="p-2 border border-gray-300 rounded flex-1"
               />
-              <img src={url} alt={`Image ${index}`} className="w-16 h-16 object-cover" />
+              <Image
+                src={url}
+                alt={`Image ${index}`}
+                className="w-16 h-16 object-cover"
+                width={64}
+                height={64}
+              />
               <button
                 type="button"
                 onClick={() => handleOpenModal(index)}
