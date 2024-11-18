@@ -304,7 +304,7 @@ const packages = [
   }
 ];
 
-const addDataToFirebase = async () => {
+const addPackagesToFirestore = async () => {
   try {
     const collectionRef = collection(db, "packages");
     for (const pkg of packages) {
@@ -316,4 +316,4 @@ const addDataToFirebase = async () => {
   }
 };
 
-export default addDataToFirebase;
+export default addPackagesToFirestore;
