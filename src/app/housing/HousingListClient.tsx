@@ -12,6 +12,7 @@ interface HousingListClientProps {
 
 const HousingListClient: React.FC<HousingListClientProps> = ({ housingList }) => {
   const [filteredHousingList, setFilteredHousingList] = useState<Housing[]>(housingList);
+  const [selectedCity, setSelectedCity] = useState<string>('');
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [guests, setGuests] = useState<number>(1);
@@ -24,23 +25,30 @@ const HousingListClient: React.FC<HousingListClientProps> = ({ housingList }) =>
   }, [housingList]);
 
   useEffect(() => {
+    let filteredList = housingList;
+
+    if (selectedCity) {
+      filteredList = filteredList.filter(housing => housing.city === selectedCity);
+    }
+
     if (startDate && endDate) {
-      const filteredList = housingList.filter(housing => {
+      filteredList = filteredList.filter(housing => {
         const availability = housing.availability.find(avail => {
           const availDate = new Date(avail.date);
           return availDate >= startDate && availDate <= endDate && avail.available && housing.maxGuests >= guests;
         });
         return availability;
       });
-      setFilteredHousingList(filteredList);
-    } else {
-      setFilteredHousingList(housingList);
     }
-  }, [startDate, endDate, guests, housingList]);
+
+    setFilteredHousingList(filteredList);
+  }, [selectedCity, startDate, endDate, guests, housingList]);
+
+  const cities = Array.from(new Set(housingList.map(h => h.city)));
 
   return (
     <>
-      <Filter onDateChange={(start, end) => { setStartDate(start); setEndDate(end); }} onGuestsChange={setGuests} maxGuests={maxGuests} />
+      <Filter onCityChange={setSelectedCity} onDateChange={(start, end) => { setStartDate(start); setEndDate(end); }} onGuestsChange={setGuests} cities={cities} maxGuests={maxGuests} />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
         {filteredHousingList.map(housing => (
           <div key={housing.id} className="relative rounded">
@@ -56,20 +64,6 @@ const HousingListClient: React.FC<HousingListClientProps> = ({ housingList }) =>
               <h2 className="text-lg font-bold py-1">{housing.name}</h2>
               <p className="text-sm truncate">{housing.description}</p>
               <p className="text-gray-500 text-sm dark:text-gray-400 pt-1">${housing.pricePerNight}/night</p>
-              <div className="mt-2 text-xs">
-                <h3 className="font-semibold">Availability:</h3>
-                <ul className="list-disc list-inside">
-                  {housing.availability && housing.availability.length > 0 ? (
-                    housing.availability.map((availability, index) => (
-                      <li key={index}>
-                        <strong>{availability.date}</strong> - {availability.available ? "Available" : "Not Available"}
-                      </li>
-                    ))
-                  ) : (
-                    <li>No availability information.</li>
-                  )}
-                </ul>
-              </div>
             </Link>
           </div>
         ))}
