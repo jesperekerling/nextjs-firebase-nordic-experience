@@ -22,7 +22,7 @@ function Header() {
             </linearGradient>
             </defs>
           </svg>
-        <span className='pl-3 font-bold'>Nordic<br />Experiences</span>
+        <span className='pl-3 font-bold'>Nordic<br />Experience</span>
       </Link>
       <nav className="fixed bottom-0 left-0 right-0 z-50 md:z-0 bg-white md:relative md:bg-transparent grow">
         <ul className="flex flex-wrap place-content-evenly md:place-content-center md:text-center md:gap-5 py-3 md:py-0 px-2">
@@ -64,7 +64,7 @@ function Header() {
 
       {user ? (
         <span className='hidden md:inline-block md:text-right'>
-          Welcome, {user.displayName || user.email}
+          {/* Welcome, {user.displayName || user.email} */}
           <Link href="/logout" className='ml-5'>Log out</Link>
         </span>
       ) : (

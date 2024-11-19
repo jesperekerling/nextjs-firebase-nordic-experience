@@ -111,7 +111,8 @@ const AdminBookingsPage = () => {
   }
 
   return (
-    <div className="container mx-auto p-4">
+    <div>
+      <p className="pb-3"><Link href="/admin/" className="hover:underline">Back to Admin</Link></p>
       <h1 className="text-2xl font-bold mb-4">All Bookings</h1>
       <ul>
         {bookings.map(booking => {
@@ -119,29 +120,35 @@ const AdminBookingsPage = () => {
           const user = userDetails[booking.userId];
           return (
             <li key={booking.id} className="mb-4">
-              {housing && housing.images && housing.images.length > 0 && (
-                <Link href={`/housing/${booking.housingId}`} className="rounded hover:opacity-75">
-                  <Image src={housing.images[0]} alt={housing.name} width={300} height={300} className="object-cover rounded" />
-                </Link>
-              )}
-              <p className="font-bold"><Link href={`/housing/${booking.housingId}`}>{housing ? housing.name : booking.housingId}</Link></p>
-              <p>City: {housing?.city}</p>
-              <p>User: {user ? user.name : booking.userId}</p>
-              <p>Start Date: {new Date(booking.startDate).toLocaleDateString()}</p>
-              <p>End Date: {new Date(booking.endDate).toLocaleDateString()}</p>
-              <p>Guests: {booking.guests}</p>
-              <p>Total Price: ${booking.totalPrice}</p>
-              <p>
-                <Link href={`/housing/${booking.housingId}`} className="bg-primary text-white px-3 py-2 rounded hover:opacity-75">
-                  View Housing
-                </Link>
-                <button
-                  onClick={() => handleDeleteBooking(booking.id)}
-                  className="ml-4 bg-secondary text-black px-3 py-1 rounded"
-                >
-                  Delete
-                </button>
-              </p>
+              <div className="flex gap-5">
+                <div>
+                  {housing && housing.images && housing.images.length > 0 && (
+                    <Link href={`/housing/${booking.housingId}`} className="rounded hover:opacity-75">
+                      <Image src={housing.images[0]} alt={housing.name} width={300} height={300} className="object-cover aspect-square rounded" />
+                    </Link>
+                  )}
+                </div>
+                <div className="items-center justify-center">
+                  <p className="font-bold my-3"><Link href={`/housing/${booking.housingId}`}>{housing ? housing.name : booking.housingId}</Link></p>
+                  <p>City: {housing?.city}</p>
+                  <p>User: {user ? user.name : booking.userId}</p>
+                  <p>Start Date: {new Date(booking.startDate).toLocaleDateString()}</p>
+                  <p>End Date: {new Date(booking.endDate).toLocaleDateString()}</p>
+                  <p>Guests: {booking.guests}</p>
+                  <p>Total Price: ${booking.totalPrice}</p>
+                  <p className="mt-5">
+                    <Link href={`/housing/${booking.housingId}`} className="bg-primary text-white px-3 py-2 rounded hover:opacity-75">
+                      View Housing
+                    </Link>
+                    <button
+                      onClick={() => handleDeleteBooking(booking.id)}
+                      className="ml-4 bg-secondary text-black px-3 py-1 rounded"
+                    >
+                      Delete
+                    </button>
+                  </p>
+                </div>
+              </div>
             </li>
           );
         })}

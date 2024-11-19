@@ -7,7 +7,6 @@ import { Housing } from "@/types/housing";
 import { Booking } from "@/types/bookings";
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { useRouter } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 
@@ -24,8 +23,7 @@ const HousingDetailClient: React.FC<HousingDetailClientProps> = ({ housing }) =>
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [guests, setGuests] = useState<number>(1);
   const [userId, setUserId] = useState<string | null>(null);
-  const router = useRouter();
-  const { addToCart } = useCart();
+  const { cart, addToCart } = useCart();
 
   useEffect(() => {
     const auth = getAuth();
@@ -69,11 +67,6 @@ const HousingDetailClient: React.FC<HousingDetailClientProps> = ({ housing }) =>
       return;
     }
 
-    if (!userId) {
-      alert("Please log in to book housing.");
-      return;
-    }
-
     const bookingDates: string[] = [];
     const currentDate = new Date(startDate);
     while (currentDate <= endDate) {
@@ -92,9 +85,23 @@ const HousingDetailClient: React.FC<HousingDetailClientProps> = ({ housing }) =>
       return;
     }
 
+    // Check if the dates are already in the cart
+    const isAlreadyInCart = cart.some(booking => 
+      'housingId' in booking &&
+      booking.housingId === housing.id &&
+      bookingDates.some(date => 
+        new Date(date) >= new Date(booking.startDate) && new Date(date) <= new Date(booking.endDate)
+      )
+    );
+
+    if (isAlreadyInCart) {
+      alert("These dates are already in the cart.");
+      return;
+    }
+
     const bookingData: Omit<Booking, 'id'> = {
       housingId: housing.id,
-      userId: userId, // Use the authenticated user's ID
+      userId: userId || "guest", // Use "guest" if the user is not logged in
       startDate: startDate.toISOString(),
       endDate: endDate.toISOString(),
       guests,
@@ -102,7 +109,7 @@ const HousingDetailClient: React.FC<HousingDetailClientProps> = ({ housing }) =>
     };
 
     addToCart({ ...bookingData, id: '' }); // Add the booking to the cart
-    router.push("/checkout"); // Navigate to the checkout page
+    alert("Booking added to cart!");
   };
 
   const isDateUnavailable = (date: Date) => {
@@ -217,7 +224,7 @@ const HousingDetailClient: React.FC<HousingDetailClientProps> = ({ housing }) =>
         
       <div className="col-span-4 md:col-span-2 pt-3">
         <button onClick={handleBooking} className="bg-primary text-white px-4 py-3 rounded-lg w-full font-semibold hover:opacity-80">
-          Book now
+          Add to Cart
         </button>
         <div className="flex pt-5">
           <p className="text-lg font-semibold pb-3">Total Amount: ${calculateTotalAmount()}</p>

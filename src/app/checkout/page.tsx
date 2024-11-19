@@ -1,15 +1,68 @@
 'use client';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 import { collection, addDoc, updateDoc, doc, getDoc } from "firebase/firestore";
 import { db } from "../../../firebase/firebaseConfig";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { Housing } from "@/types/housing";
+import { Package } from "@/types/package";
+import Image from 'next/image';
+import Link from 'next/link';
 
 const CheckoutPage = () => {
   const router = useRouter();
-  const { cart, clearCart } = useCart();
+  const { cart, clearCart, removeFromCart } = useCart();
+  const [userId, setUserId] = useState<string | null>(null);
+  const [housingDetails, setHousingDetails] = useState<{ [key: string]: Housing }>({});
+  const [packageDetails, setPackageDetails] = useState<{ [key: string]: Package }>({});
+
+  useEffect(() => {
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUserId(user.uid);
+      } else {
+        setUserId(null);
+      }
+    });
+
+    const fetchDetails = async () => {
+      const housingDetails: { [key: string]: Housing } = {};
+      const packageDetails: { [key: string]: Package } = {};
+
+      for (const booking of cart) {
+        if ('housingId' in booking) {
+          const housingRef = doc(db, "housing", booking.housingId);
+          const housingDoc = await getDoc(housingRef);
+          if (housingDoc.exists()) {
+            housingDetails[booking.housingId] = housingDoc.data() as Housing;
+          }
+        } else if ('packageId' in booking) {
+          const packageRef = doc(db, "packages", booking.packageId);
+          const packageDoc = await getDoc(packageRef);
+          if (packageDoc.exists()) {
+            packageDetails[booking.packageId] = packageDoc.data() as Package;
+          }
+        }
+      }
+
+      setHousingDetails(housingDetails);
+      setPackageDetails(packageDetails);
+    };
+
+    fetchDetails();
+
+    return () => unsubscribe();
+  }, [cart]);
 
   const handleConfirmBooking = async () => {
+    if (!userId) {
+      alert("Please log in to confirm your order.");
+      router.push('/login');
+      return;
+    }
+
     try {
       for (const booking of cart) {
         const bookingData = { ...booking } as Partial<typeof booking>;
@@ -27,16 +80,18 @@ const CheckoutPage = () => {
         }
 
         // Update housing availability
-        const housingRef = doc(db, "housing", booking.housingId);
-        const housingDoc = await getDoc(housingRef);
-        if (housingDoc.exists()) {
-          const housingData = housingDoc.data();
-          const updatedAvailability = [
-            ...housingData.availability,
-            ...bookingDates.map(date => ({ date, available: false }))
-          ];
+        if ('housingId' in booking) {
+          const housingRef = doc(db, "housing", booking.housingId);
+          const housingDoc = await getDoc(housingRef);
+          if (housingDoc.exists()) {
+            const housingData = housingDoc.data();
+            const updatedAvailability = [
+              ...housingData.availability,
+              ...bookingDates.map(date => ({ date, available: false }))
+            ];
 
-          await updateDoc(housingRef, { availability: updatedAvailability });
+            await updateDoc(housingRef, { availability: updatedAvailability });
+          }
         }
       }
 
@@ -59,11 +114,48 @@ const CheckoutPage = () => {
       <ul>
         {cart.map((booking, index) => (
           <li key={index} className="mb-4">
-            <p>Housing: {booking.housingId}</p>
-            <p>Start Date: {new Date(booking.startDate).toLocaleDateString()}</p>
-            <p>End Date: {new Date(booking.endDate).toLocaleDateString()}</p>
-            <p>Guests: {booking.guests}</p>
-            <p>Total Price: ${booking.totalPrice}</p>
+            {'housingId' in booking ? (
+              <>
+                <div className="flex gap-5">
+                  <div>
+                    {housingDetails[booking.housingId] && housingDetails[booking.housingId].images && housingDetails[booking.housingId].images.length > 0 && (
+                      <Link href={`/housing/${booking.housingId}`} className="rounded hover:opacity-75">
+                        <Image src={housingDetails[booking.housingId].images[0]} alt={housingDetails[booking.housingId].name} width={200} height={200} className="object-cover aspect-square rounded" />
+                      </Link>
+                    )}
+                  </div>
+                  <div>
+                    <p className="font-bold my-3"><Link href={`/housing/${booking.housingId}`}>{housingDetails[booking.housingId] ? housingDetails[booking.housingId].name : booking.housingId}</Link></p>
+                    <p>Start Date: {new Date(booking.startDate).toLocaleDateString()}</p>
+                    <p>End Date: {new Date(booking.endDate).toLocaleDateString()}</p>
+                    <p>Guests: {booking.guests}</p>
+                    <p>Total Price: ${booking.totalPrice}</p>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex gap-5">
+                  <div>
+                    {packageDetails[booking.packageId] && packageDetails[booking.packageId].images && packageDetails[booking.packageId].images.length > 0 && (
+                      <Link href={`/packages/${booking.packageId}`} className="rounded hover:opacity-75">
+                        <Image src={packageDetails[booking.packageId].images[0]} alt={packageDetails[booking.packageId].name} width={200} height={200} className="object-cover aspect-square rounded" />
+                      </Link>
+                    )}
+                  </div>
+                  <div>
+                    <p className="font-bold my-3"><Link href={`/packages/${booking.packageId}`}>{packageDetails[booking.packageId] ? packageDetails[booking.packageId].name : booking.packageId}</Link></p>
+                    <p>Start Date: {new Date(booking.startDate).toLocaleDateString()}</p>
+                    <p>End Date: {new Date(booking.endDate).toLocaleDateString()}</p>
+                    <p>Guests: {booking.guests}</p>
+                    <p>Total Price: ${booking.totalPrice}</p>
+                  </div>
+                </div>
+              </>
+            )}
+            <button onClick={() => removeFromCart(booking.id)} className="bg-primary text-white px-3 my-1 py-1 rounded">
+              Delete
+            </button>
           </li>
         ))}
       </ul>

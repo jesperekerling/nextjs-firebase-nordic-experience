@@ -1,16 +1,39 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Modal from '@/components/Modal';
+import { PackageBooking } from "@/types/packageBookings";
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { useCart } from '@/context/CartContext';
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 interface PackageDetailClientProps {
-  images: string[];
+  packageDetail: PackageBooking;
 }
 
-const PackageDetailClient: React.FC<PackageDetailClientProps> = ({ images }) => {
+const PackageDetailClient: React.FC<PackageDetailClientProps> = ({ packageDetail }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  const [guests, setGuests] = useState<number>(1);
+  const [userId, setUserId] = useState<string | null>(null);
+  const { cart, addToCart } = useCart();
+
+  useEffect(() => {
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUserId(user.uid);
+      } else {
+        setUserId(null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const handleOpenModal = (index: number) => {
     setCurrentImageIndex(index);
@@ -22,18 +45,84 @@ const PackageDetailClient: React.FC<PackageDetailClientProps> = ({ images }) => 
   };
 
   const handleNextImage = () => {
-    setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
+    setCurrentImageIndex((prevIndex) => (prevIndex + 1) % packageDetail.images.length);
   };
 
   const handlePrevImage = () => {
-    setCurrentImageIndex((prevIndex) => (prevIndex - 1 + images.length) % images.length);
+    setCurrentImageIndex((prevIndex) => (prevIndex - 1 + packageDetail.images.length) % packageDetail.images.length);
   };
+
+  const handleDateChange = (dates: [Date | null, Date | null]) => {
+    const [start] = dates;
+    if (start) {
+      const endDate = new Date(start);
+      endDate.setDate(endDate.getDate() + packageDetail.days - 1);
+      setStartDate(start);
+      setEndDate(endDate);
+    } else {
+      setStartDate(undefined);
+      setEndDate(undefined);
+    }
+  };
+
+  const handleBooking = () => {
+    if (!startDate || !endDate) {
+      alert("Please select travel dates.");
+      return;
+    }
+
+    const bookingDates: string[] = [];
+    const currentDate = new Date(startDate);
+    while (currentDate <= endDate) {
+      bookingDates.push(currentDate.toISOString().split('T')[0]);
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    console.log("Selected Dates:", bookingDates);
+
+    // Check if the dates are already in the cart
+    const isAlreadyInCart = cart.some(booking => 
+      'packageId' in booking &&
+      booking.packageId === packageDetail.id &&
+      bookingDates.some(date => 
+        new Date(date) >= new Date(booking.startDate) && new Date(date) <= new Date(booking.endDate)
+      )
+    );
+
+    if (isAlreadyInCart) {
+      alert("These dates are already in the cart.");
+      return;
+    }
+
+    const bookingData: Omit<PackageBooking, 'id'> = {
+      packageId: packageDetail.id,
+      userId: userId || "guest", // Use "guest" if the user is not logged in
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+      guests,
+      totalPrice: guests * packageDetail.price,
+      images: packageDetail.images,
+      price: packageDetail.price,
+      days: packageDetail.days,
+    };
+
+    addToCart({ ...bookingData, id: '' }); // Add the booking to the cart
+    alert("Booking added to cart!");
+  };
+
+  const calculateTotalAmount = () => {
+    return guests * packageDetail.price;
+  };
+
+  if (!packageDetail.images || packageDetail.images.length === 0) {
+    return <div>No images available.</div>;
+  }
 
   return (
     <div className="grid grid-cols-4 gap-2 md:gap-3">
       <div className="col-span-4 md:col-span-2 lg:col-span-2">
         <Image
-          src={images[0]}
+          src={packageDetail.images[0]}
           alt={`Image 0`}
           className="object-cover aspect-video rounded cursor-pointer hover:opacity-70 h-full"
           height={1000}
@@ -43,7 +132,7 @@ const PackageDetailClient: React.FC<PackageDetailClientProps> = ({ images }) => 
         />
       </div>
       <div className="col-span-4 md:col-span-2 lg:col-span-2 grid grid-cols-2 gap-2 md:gap-3 h-2/3">
-        {images.slice(1, 5).map((url, index) => (
+        {packageDetail.images.slice(1, 5).map((url, index) => (
           <Image
             key={index + 1}
             src={url}
@@ -61,7 +150,7 @@ const PackageDetailClient: React.FC<PackageDetailClientProps> = ({ images }) => 
         <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
           <div className="relative">
             <Image
-              src={images[currentImageIndex]}
+              src={packageDetail.images[currentImageIndex]}
               alt={`Image ${currentImageIndex}`}
               width={800}
               height={600}
@@ -83,6 +172,48 @@ const PackageDetailClient: React.FC<PackageDetailClientProps> = ({ images }) => 
           </div>
         </Modal>
       )}
+
+      <div className="col-span-4 md:col-span-2">
+        <div className="flex gap-5 pb-5 p-3 rounded">
+          <div>
+            <label className="block font-bold text-gray-700 mb-3">
+              Travel dates
+            </label>
+            <DatePicker
+              selected={startDate}
+              onChange={handleDateChange}
+              startDate={startDate}
+              endDate={endDate}
+              selectsRange
+              className="p-2 border border-gray-300 rounded w-full"
+              placeholderText="Select dates"
+            />
+          </div>
+          <div>
+            <label className="block font-bold text-gray-700 mb-3">
+              People
+            </label>
+            <input
+              type="number"
+              value={guests}
+              onChange={(e) => setGuests(parseInt(e.target.value))}
+              min={1}
+              max={packageDetail.guests}
+              className="p-2 border border-gray-300 rounded w-full"
+            />
+          </div>
+        </div>
+      </div>
+        
+      <div className="col-span-4 md:col-span-2 pt-3">
+        <button onClick={handleBooking} className="bg-primary text-white px-4 py-3 rounded-lg w-full font-semibold hover:opacity-80">
+          Add to Cart
+        </button>
+        <div className="flex pt-5">
+          <p className="text-lg font-semibold pb-3">Total Amount: ${calculateTotalAmount()}</p>
+          <p className="text-black dark:text-white block flex-1 text-right md:text-right font-semibold text-lg">${packageDetail.price} per package</p>
+        </div>
+      </div>
     </div>
   );
 };
