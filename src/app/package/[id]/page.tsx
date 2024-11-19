@@ -86,6 +86,15 @@ const PackageDetail = async ({ params }: { params: Promise<{ id: string }> }) =>
         <span className="bg-secondary text-black py-3 px-5 mx-4 rounded-lg font-semibold">Days: {pkg?.days}</span>
       </div>
       <p className="text-md md:text-lg flex-auto pb-5">{pkg?.description}</p>
+      <h2 className="text-xl md:text-2xl font-bold mt-7 md:mt-10 mb-5">Activities</h2>
+      <ul className="list-disc list-inside pb-5">
+        {pkg?.activities.map((activity, index) => (
+          <li key={index} className="text-md md:text-lg pb-5">
+            <strong>{activity.name}</strong> <strong className="bg-secondary px-4 py-2 rounded-lg ml-3 text-sm">{activity.time}</strong><br />
+            <p className="pt-2 pb-3">{activity.description}</p>
+          </li>
+        ))}
+      </ul>
       <h2 className="text-xl md:text-2xl font-bold mt-7 md:mt-10 mb-5">Location</h2>
       <p className="pb-5">{pkg?.address}</p>
       <GoogleMaps lat={lat} lng={lng} />

@@ -42,7 +42,7 @@ const Filter: React.FC<FilterProps> = ({ onCityChange, onDateChange, onGuestsCha
 
   return (
     <div className="filter flex flex-wrap gap-4 mb-4 bg-secondary py-7 px-5">
-      <div className="flex-1">
+      <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
         <select
           value={selectedCity}
@@ -57,7 +57,7 @@ const Filter: React.FC<FilterProps> = ({ onCityChange, onDateChange, onGuestsCha
           ))}
         </select>
       </div>
-      <div className="flex-1">
+      <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Travel dates</label>
         <DatePicker
           selected={startDate}
@@ -69,7 +69,7 @@ const Filter: React.FC<FilterProps> = ({ onCityChange, onDateChange, onGuestsCha
           className="p-2 border border-gray-300 rounded text-sm"
         />
       </div>
-      <div className="flex-1">
+      <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">People</label>
         <input
           type="number"

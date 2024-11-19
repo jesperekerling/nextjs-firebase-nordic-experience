@@ -20,7 +20,7 @@ const PackageDetailClient: React.FC<PackageDetailClientProps> = ({ packageDetail
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [guests, setGuests] = useState<number>(1);
   const [userId, setUserId] = useState<string | null>(null);
-  const { cart, addToCart } = useCart();
+  const { addToCart } = useCart();
 
   useEffect(() => {
     const auth = getAuth();
@@ -80,20 +80,6 @@ const PackageDetailClient: React.FC<PackageDetailClientProps> = ({ packageDetail
 
     console.log("Selected Dates:", bookingDates);
 
-    // Check if the dates are already in the cart
-    const isAlreadyInCart = cart.some(booking => 
-      'packageId' in booking &&
-      booking.packageId === packageDetail.id &&
-      bookingDates.some(date => 
-        new Date(date) >= new Date(booking.startDate) && new Date(date) <= new Date(booking.endDate)
-      )
-    );
-
-    if (isAlreadyInCart) {
-      alert("These dates are already in the cart.");
-      return;
-    }
-
     const bookingData: Omit<PackageBooking, 'id'> = {
       packageId: packageDetail.id,
       userId: userId || "guest", // Use "guest" if the user is not logged in
@@ -112,6 +98,16 @@ const PackageDetailClient: React.FC<PackageDetailClientProps> = ({ packageDetail
 
   const calculateTotalAmount = () => {
     return guests * packageDetail.price;
+  };
+
+  const incrementGuests = () => {
+    setGuests(guests + 1);
+  };
+
+  const decrementGuests = () => {
+    if (guests > 1) {
+      setGuests(guests - 1);
+    }
   };
 
   if (!packageDetail.images || packageDetail.images.length === 0) {
@@ -175,7 +171,7 @@ const PackageDetailClient: React.FC<PackageDetailClientProps> = ({ packageDetail
 
       <div className="col-span-4 md:col-span-2">
         <div className="flex gap-5 pb-5 p-3 rounded">
-          <div>
+          <div className="w-2/3">
             <label className="block font-bold text-gray-700 mb-3">
               Travel dates
             </label>
@@ -189,18 +185,25 @@ const PackageDetailClient: React.FC<PackageDetailClientProps> = ({ packageDetail
               placeholderText="Select dates"
             />
           </div>
-          <div>
+          <div className="w-1/3">
             <label className="block font-bold text-gray-700 mb-3">
               People
             </label>
-            <input
-              type="number"
-              value={guests}
-              onChange={(e) => setGuests(parseInt(e.target.value))}
-              min={1}
-              max={packageDetail.guests}
-              className="p-2 border border-gray-300 rounded w-full"
-            />
+            <div className="flex items-center">
+              <button onClick={decrementGuests} className="bg-gray-300 text-gray-700 px-2 py-1 rounded-l">
+                -
+              </button>
+              <input
+                type="number"
+                value={guests.toString()}
+                onChange={(e) => setGuests(parseInt(e.target.value) || 1)}
+                min={1}
+                className="p-2 border border-gray-300 rounded-none w-full text-center"
+              />
+              <button onClick={incrementGuests} className="bg-gray-300 text-gray-700 px-2 py-1 rounded-r">
+                +
+              </button>
+            </div>
           </div>
         </div>
       </div>
