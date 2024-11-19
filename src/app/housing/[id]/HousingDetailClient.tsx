@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import Modal from '@/components/Modal';
 import { Housing } from "@/types/housing";
+import { Booking } from "@/types/booking";
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { useRouter } from 'next/navigation';
@@ -19,8 +20,8 @@ interface HousingDetailClientProps {
 const HousingDetailClient: React.FC<HousingDetailClientProps> = ({ housing }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
-  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
   const [guests, setGuests] = useState<number>(1);
   const router = useRouter();
 
@@ -43,8 +44,8 @@ const HousingDetailClient: React.FC<HousingDetailClientProps> = ({ housing }) =>
 
   const handleDateChange = (dates: [Date | null, Date | null]) => {
     const [start, end] = dates;
-    setStartDate(start || undefined);
-    setEndDate(end || undefined);
+    setStartDate(start);
+    setEndDate(end);
   };
 
   const handleBooking = async () => {
@@ -67,14 +68,16 @@ const HousingDetailClient: React.FC<HousingDetailClientProps> = ({ housing }) =>
     }
 
     try {
-      await addDoc(collection(db, "bookings"), {
+      const bookingData: Omit<Booking, 'id'> = {
         housingId: housing.id,
         userId: "currentUserId", // Replace with the actual user ID
         startDate: startDate.toISOString(),
         endDate: endDate.toISOString(),
         guests,
         totalPrice: bookingDates.length * housing.pricePerNight,
-      });
+      };
+
+      await addDoc(collection(db, "bookings"), bookingData);
 
       // Update housing availability
       const updatedAvailability = housing.availability.map(avail => {

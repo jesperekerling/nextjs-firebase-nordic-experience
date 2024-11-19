@@ -1,18 +1,9 @@
-'use client'
+'use client';
 import React, { useEffect, useState } from 'react';
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../../../firebase/firebaseConfig";
 import Link from 'next/link';
-
-interface Booking {
-  id: string;
-  housingId: string;
-  userId: string;
-  startDate: string;
-  endDate: string;
-  guests: number;
-  totalPrice: number;
-}
+import { Booking } from "@/types/bookings"
 
 const AdminBookingsPage = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);

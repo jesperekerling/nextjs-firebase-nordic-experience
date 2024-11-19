@@ -33,11 +33,15 @@ const HousingListClient: React.FC<HousingListClientProps> = ({ housingList }) =>
 
     if (startDate && endDate) {
       filteredList = filteredList.filter(housing => {
-        const availability = housing.availability.find(avail => {
-          const availDate = new Date(avail.date);
-          return availDate >= startDate && availDate <= endDate && avail.available && housing.maxGuests >= guests;
-        });
-        return availability;
+        const bookingDates = [];
+        const currentDate = new Date(startDate);
+        while (currentDate <= endDate) {
+          bookingDates.push(currentDate.toISOString().split('T')[0]);
+          currentDate.setDate(currentDate.getDate() + 1);
+        }
+
+        const availableDates = housing.availability.filter(avail => bookingDates.includes(avail.date) && avail.available);
+        return availableDates.length > 0 && housing.maxGuests >= guests;
       });
     }
 

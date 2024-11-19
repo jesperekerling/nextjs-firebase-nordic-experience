@@ -1,19 +1,10 @@
-'use client'
+'use client';
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../../firebase/firebaseConfig";
-
-interface Booking {
-  id: string;
-  housingId: string;
-  userId: string;
-  startDate: string;
-  endDate: string;
-  guests: number;
-  totalPrice: number;
-}
+import { Booking } from "../../../types/booking"; // Update the import path
 
 const CheckoutPage = () => {
   const router = useRouter();
