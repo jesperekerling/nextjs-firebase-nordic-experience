@@ -4,6 +4,11 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import Modal from '@/components/Modal';
 import { Housing } from "@/types/housing";
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { useRouter } from 'next/navigation';
+import { collection, addDoc, updateDoc, doc } from "firebase/firestore";
+import { db } from "../../../../firebase/firebaseConfig";
 
 interface HousingDetailClientProps {
   housing: Housing;
@@ -14,6 +19,10 @@ interface HousingDetailClientProps {
 const HousingDetailClient: React.FC<HousingDetailClientProps> = ({ housing }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  const [guests, setGuests] = useState<number>(1);
+  const router = useRouter();
 
   const handleOpenModal = (index: number) => {
     setCurrentImageIndex(index);
@@ -30,6 +39,60 @@ const HousingDetailClient: React.FC<HousingDetailClientProps> = ({ housing }) =>
 
   const handlePrevImage = () => {
     setCurrentImageIndex((prevIndex) => (prevIndex - 1 + housing.images.length) % housing.images.length);
+  };
+
+  const handleDateChange = (dates: [Date | null, Date | null]) => {
+    const [start, end] = dates;
+    setStartDate(start || undefined);
+    setEndDate(end || undefined);
+  };
+
+  const handleBooking = async () => {
+    if (!startDate || !endDate) {
+      alert("Please select travel dates.");
+      return;
+    }
+
+    const bookingDates: string[] = [];
+    const currentDate = new Date(startDate);
+    while (currentDate <= endDate) {
+      bookingDates.push(currentDate.toISOString().split('T')[0]);
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    const availableDates = housing.availability.filter(avail => bookingDates.includes(avail.date) && avail.available);
+    if (availableDates.length !== bookingDates.length) {
+      alert("Some of the selected dates are not available.");
+      return;
+    }
+
+    try {
+      await addDoc(collection(db, "bookings"), {
+        housingId: housing.id,
+        userId: "currentUserId", // Replace with the actual user ID
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
+        guests,
+        totalPrice: bookingDates.length * housing.pricePerNight,
+      });
+
+      // Update housing availability
+      const updatedAvailability = housing.availability.map(avail => {
+        if (bookingDates.includes(avail.date)) {
+          return { ...avail, available: false };
+        }
+        return avail;
+      });
+
+      const housingRef = doc(db, "housing", housing.id);
+      await updateDoc(housingRef, { availability: updatedAvailability });
+
+      alert("Booking successful!");
+      router.push("/checkout");
+    } catch (error) {
+      console.error("Error booking housing:", error);
+      alert("Failed to book housing.");
+    }
   };
 
   if (!housing.images || housing.images.length === 0) {
@@ -90,6 +153,34 @@ const HousingDetailClient: React.FC<HousingDetailClientProps> = ({ housing }) =>
           </div>
         </Modal>
       )}
+
+      <div className="col-span-4 mt-5">
+        <label className="block text-sm font-medium text-gray-700 mb-1">Travel dates</label>
+        <DatePicker
+          selected={startDate}
+          onChange={handleDateChange}
+          startDate={startDate}
+          endDate={endDate}
+          selectsRange
+          className="p-2 border border-gray-300 rounded w-full"
+        />
+      </div>
+      <div className="col-span-4 mt-5">
+        <label className="block text-sm font-medium text-gray-700 mb-1">People</label>
+        <input
+          type="number"
+          value={guests}
+          onChange={(e) => setGuests(parseInt(e.target.value))}
+          min={1}
+          max={housing.maxGuests}
+          className="p-2 border border-gray-300 rounded w-full"
+        />
+      </div>
+      <div className="col-span-4 mt-5">
+        <button onClick={handleBooking} className="bg-primary text-white px-4 py-3 rounded-lg w-full font-semibold hover:opacity-80">
+          Book now
+        </button>
+      </div>
     </div>
   );
 };
