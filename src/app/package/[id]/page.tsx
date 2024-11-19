@@ -74,7 +74,7 @@ const PackageDetail = async ({ params }: { params: Promise<{ id: string }> }) =>
 
   return (
     <div>
-      <Link href="/packages">
+      <Link href="/">
         <button className="bg-primary text-white py-2 px-3 rounded-lg font-semibold text-sm md:text-md hover:opacity-80">
           Back to packages list
         </button>
