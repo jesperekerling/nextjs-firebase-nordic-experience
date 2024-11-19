@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Modal from '@/components/Modal';
 import { Housing } from "@/types/housing";
@@ -10,6 +10,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { useRouter } from 'next/navigation';
 import { collection, addDoc, updateDoc, doc } from "firebase/firestore";
 import { db } from "../../../../firebase/firebaseConfig";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 interface HousingDetailClientProps {
   housing: Housing;
@@ -23,7 +24,21 @@ const HousingDetailClient: React.FC<HousingDetailClientProps> = ({ housing }) =>
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [guests, setGuests] = useState<number>(1);
+  const [userId, setUserId] = useState<string | null>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUserId(user.uid);
+      } else {
+        setUserId(null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const handleOpenModal = (index: number) => {
     setCurrentImageIndex(index);
@@ -54,6 +69,11 @@ const HousingDetailClient: React.FC<HousingDetailClientProps> = ({ housing }) =>
       return;
     }
 
+    if (!userId) {
+      alert("Please log in to book housing.");
+      return;
+    }
+
     const bookingDates: string[] = [];
     const currentDate = new Date(startDate);
     while (currentDate <= endDate) {
@@ -61,8 +81,13 @@ const HousingDetailClient: React.FC<HousingDetailClientProps> = ({ housing }) =>
       currentDate.setDate(currentDate.getDate() + 1);
     }
 
-    const availableDates = housing.availability.filter(avail => bookingDates.includes(avail.date) && avail.available);
-    if (availableDates.length !== bookingDates.length) {
+    console.log("Selected Dates:", bookingDates);
+    console.log("Housing Availability:", housing.availability);
+
+    const unavailableDates = housing.availability.filter(avail => !avail.available).map(avail => avail.date);
+    const isAvailable = bookingDates.every(date => !unavailableDates.includes(date));
+
+    if (!isAvailable) {
       alert("Some of the selected dates are not available.");
       return;
     }
@@ -70,7 +95,7 @@ const HousingDetailClient: React.FC<HousingDetailClientProps> = ({ housing }) =>
     try {
       const bookingData: Omit<Booking, 'id'> = {
         housingId: housing.id,
-        userId: "currentUserId", // Replace with the actual user ID
+        userId: userId, // Use the authenticated user's ID
         startDate: startDate.toISOString(),
         endDate: endDate.toISOString(),
         guests,
@@ -80,12 +105,10 @@ const HousingDetailClient: React.FC<HousingDetailClientProps> = ({ housing }) =>
       await addDoc(collection(db, "bookings"), bookingData);
 
       // Update housing availability
-      const updatedAvailability = housing.availability.map(avail => {
-        if (bookingDates.includes(avail.date)) {
-          return { ...avail, available: false };
-        }
-        return avail;
-      });
+      const updatedAvailability = [
+        ...housing.availability,
+        ...bookingDates.map(date => ({ date, available: false }))
+      ];
 
       const housingRef = doc(db, "housing", housing.id);
       await updateDoc(housingRef, { availability: updatedAvailability });
@@ -96,6 +119,23 @@ const HousingDetailClient: React.FC<HousingDetailClientProps> = ({ housing }) =>
       console.error("Error booking housing:", error);
       alert("Failed to book housing.");
     }
+  };
+
+  const isDateUnavailable = (date: Date) => {
+    const dateString = date.toISOString().split('T')[0];
+    return housing.availability.some(avail => avail.date === dateString && !avail.available);
+  };
+
+  const getDayClassName = (date: Date) => {
+    return isDateUnavailable(date) ? 'unavailable-date' : '';
+  };
+
+  const calculateTotalAmount = () => {
+    if (!startDate || !endDate) return 0;
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    return days * housing.pricePerNight;
   };
 
   if (!housing.images || housing.images.length === 0) {
@@ -156,34 +196,51 @@ const HousingDetailClient: React.FC<HousingDetailClientProps> = ({ housing }) =>
           </div>
         </Modal>
       )}
+      
+      <div className="col-span-4 md:col-span-2">
+        <div className="flex gap-5 pb-5 p-3 rounded">
+          <div>
+            <label className="block font-bold text-gray-700 mb-3">
+              Travel dates
+            </label>
+            <DatePicker
+              selected={startDate}
+              onChange={handleDateChange}
+              startDate={startDate}
+              endDate={endDate}
+              selectsRange
+              filterDate={(date) => !isDateUnavailable(date)}
+              dayClassName={getDayClassName}
+              className="p-2 border border-gray-300 rounded w-full"
+              placeholderText="Select dates"
+            />
+          </div>
+          <div>
+            <label className="block font-bold text-gray-700 mb-3">
+              People
+            </label>
+            <input
+              type="number"
+              value={guests}
+              onChange={(e) => setGuests(parseInt(e.target.value))}
+              min={1}
+              max={housing.maxGuests}
+              className="p-2 border border-gray-300 rounded w-full"
+            />
+          </div>
+        </div>
+      </div>
+        
+        <div className="col-span-4 md:col-span-2 pt-3">
+          <button onClick={handleBooking} className="bg-primary text-white px-4 py-3 rounded-lg w-full font-semibold hover:opacity-80">
+            Book now
+          </button>
+          <div className="flex pt-5">
+            <p className="text-lg font-semibold pb-3">Total Amount: ${calculateTotalAmount()}</p>
+            <p className="text-black dark:text-white block flex-1 text-right md:text-right font-semibold text-lg">${housing?.pricePerNight} per night</p>
+          </div>
 
-      <div className="col-span-4 mt-5">
-        <label className="block text-sm font-medium text-gray-700 mb-1">Travel dates</label>
-        <DatePicker
-          selected={startDate}
-          onChange={handleDateChange}
-          startDate={startDate}
-          endDate={endDate}
-          selectsRange
-          className="p-2 border border-gray-300 rounded w-full"
-        />
-      </div>
-      <div className="col-span-4 mt-5">
-        <label className="block text-sm font-medium text-gray-700 mb-1">People</label>
-        <input
-          type="number"
-          value={guests}
-          onChange={(e) => setGuests(parseInt(e.target.value))}
-          min={1}
-          max={housing.maxGuests}
-          className="p-2 border border-gray-300 rounded w-full"
-        />
-      </div>
-      <div className="col-span-4 mt-5">
-        <button onClick={handleBooking} className="bg-primary text-white px-4 py-3 rounded-lg w-full font-semibold hover:opacity-80">
-          Book now
-        </button>
-      </div>
+        </div>
     </div>
   );
 };

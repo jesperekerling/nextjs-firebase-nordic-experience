@@ -27,6 +27,8 @@ const Filter: React.FC<FilterProps> = ({ onCityChange, onDateChange, onGuestsCha
     setStartDate(start || undefined);
     setEndDate(end || undefined);
     if (start && end) {
+      console.log("Selected Start Date:", start);
+      console.log("Selected End Date:", end);
       onDateChange(start, end);
     }
   };
@@ -40,8 +42,8 @@ const Filter: React.FC<FilterProps> = ({ onCityChange, onDateChange, onGuestsCha
 
   return (
     <div className="filter flex flex-wrap gap-4 mb-4 bg-secondary py-7 px-5">
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-black mb-1">City</label>
+      <div className="flex-1">
+        <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
         <select
           value={selectedCity}
           onChange={handleCityChange}
@@ -55,18 +57,7 @@ const Filter: React.FC<FilterProps> = ({ onCityChange, onDateChange, onGuestsCha
           ))}
         </select>
       </div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">People</label>
-        <input
-          type="number"
-          value={guests}
-          onChange={(e) => handleGuestsChange(parseInt(e.target.value))}
-          min={1}
-          max={maxGuests}
-          className="p-2 border border-gray-300 text-sm rounded text-center w-full"
-        />
-      </div>
-      <div>
+      <div className="flex-1">
         <label className="block text-sm font-medium text-gray-700 mb-1">Travel dates</label>
         <DatePicker
           selected={startDate}
@@ -76,6 +67,17 @@ const Filter: React.FC<FilterProps> = ({ onCityChange, onDateChange, onGuestsCha
           selectsRange
           placeholderText="Choose dates"
           className="p-2 border border-gray-300 rounded text-sm"
+        />
+      </div>
+      <div className="flex-1">
+        <label className="block text-sm font-medium text-gray-700 mb-1">People</label>
+        <input
+          type="number"
+          value={guests}
+          onChange={(e) => handleGuestsChange(parseInt(e.target.value))}
+          min={1}
+          max={maxGuests}
+          className="p-2 border border-gray-300 text-sm rounded text-center w-full"
         />
       </div>
     </div>

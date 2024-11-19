@@ -40,8 +40,14 @@ const HousingListClient: React.FC<HousingListClientProps> = ({ housingList }) =>
           currentDate.setDate(currentDate.getDate() + 1);
         }
 
-        const availableDates = housing.availability.filter(avail => bookingDates.includes(avail.date) && avail.available);
-        return availableDates.length > 0 && housing.maxGuests >= guests;
+        console.log("Booking Dates:", bookingDates);
+        console.log("Housing Availability:", housing.availability);
+
+        const unavailableDates = housing.availability.filter(avail => !avail.available).map(avail => avail.date);
+        console.log("Unavailable Dates:", unavailableDates);
+
+        const isAvailable = bookingDates.every(date => !unavailableDates.includes(date));
+        return isAvailable && housing.maxGuests >= guests;
       });
     }
 

@@ -71,10 +71,10 @@ const HousingDetailPage = async ({ params }: { params: Promise<{ id: string }> }
       <div className="my-7 md:my-5 md:flex text-center">
         <span className="bg-secondary text-black py-3 px-5 rounded-lg font-semibold">{housing?.city}</span>
         <span className="bg-secondary text-black py-3 px-5 mx-4 rounded-lg font-semibold">Up to {housing?.maxGuests} guests</span>
-        <p className="text-black dark:text-white block mt-7 md:mt-auto flex-auto text-center md:text-right font-semibold px-1 m-2 text-lg">${housing?.pricePerNight} per night</p>
+        {/* <p className="text-black dark:text-white block mt-7 md:mt-auto flex-auto text-center md:text-right font-semibold px-1 m-2 text-lg">${housing?.pricePerNight} per night</p> */}
       </div>
-      
       <p className="text-md md:text-lg flex-auto pb-5">{housing?.description}</p>
+      
       
       <h2 className="text-xl md:text-2xl font-bold mt-7 md:mt-10 mb-5">Location</h2>
       <p className="pb-5">{housing?.address}</p>
