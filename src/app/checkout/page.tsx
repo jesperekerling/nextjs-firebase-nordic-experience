@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../../firebase/firebaseConfig";
-import { Booking } from "../../../types/booking"; // Update the import path
+import { Booking } from "../../types/bookings";
 
 const CheckoutPage = () => {
   const router = useRouter();

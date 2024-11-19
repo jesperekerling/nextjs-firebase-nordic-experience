@@ -33,7 +33,7 @@ const HousingListClient: React.FC<HousingListClientProps> = ({ housingList }) =>
 
     if (startDate && endDate) {
       filteredList = filteredList.filter(housing => {
-        const bookingDates = [];
+        const bookingDates: string[] = [];
         const currentDate = new Date(startDate);
         while (currentDate <= endDate) {
           bookingDates.push(currentDate.toISOString().split('T')[0]);

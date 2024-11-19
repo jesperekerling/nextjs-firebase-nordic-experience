@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import Modal from '@/components/Modal';
 import { Housing } from "@/types/housing";
-import { Booking } from "@/types/booking";
+import { Booking } from "@/types/bookings";
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { useRouter } from 'next/navigation';
@@ -20,8 +20,8 @@ interface HousingDetailClientProps {
 const HousingDetailClient: React.FC<HousingDetailClientProps> = ({ housing }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [startDate, setStartDate] = useState<Date | null>(null);
-  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [guests, setGuests] = useState<number>(1);
   const router = useRouter();
 
@@ -44,8 +44,8 @@ const HousingDetailClient: React.FC<HousingDetailClientProps> = ({ housing }) =>
 
   const handleDateChange = (dates: [Date | null, Date | null]) => {
     const [start, end] = dates;
-    setStartDate(start);
-    setEndDate(end);
+    setStartDate(start || undefined);
+    setEndDate(end || undefined);
   };
 
   const handleBooking = async () => {

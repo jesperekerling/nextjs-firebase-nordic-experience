@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../../../firebase/firebaseConfig";
 import Link from 'next/link';
-import { Booking } from "@/types/booking";
+import { Booking } from "@/types/bookings";
 
 const UserBookingsPage = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
