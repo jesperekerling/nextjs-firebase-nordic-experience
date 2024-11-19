@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect } from "react";
+import { useRouter } from 'next/navigation';
 import { auth, signInWithEmailAndPassword, googleProvider, signInWithPopup } from "../../../../firebase/firebaseConfig";
 import Link from "next/link";
 import { useAuth } from "../../../context/AuthContext";
@@ -9,6 +10,7 @@ function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
     console.log('Current user:', user); // Add logging
@@ -18,6 +20,7 @@ function LoginForm() {
     e.preventDefault();
     try {
       await signInWithEmailAndPassword(auth, email, password);
+      router.push('/profile'); // Redirect to /profile after successful login
     } catch {
       setError("Failed to login. Please check your credentials.");
     }
@@ -26,6 +29,7 @@ function LoginForm() {
   const handleGoogleLogin = async () => {
     try {
       await signInWithPopup(auth, googleProvider);
+      router.push('/profile'); // Redirect to /profile after successful login with Google
     } catch {
       setError("Failed to login with Google.");
     }

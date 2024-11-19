@@ -2,16 +2,51 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
+import { collection, addDoc, updateDoc, doc, getDoc } from "firebase/firestore";
+import { db } from "../../../firebase/firebaseConfig";
 
 const CheckoutPage = () => {
   const router = useRouter();
   const { cart, clearCart } = useCart();
 
-  const handlePayment = () => {
-    // Implement payment logic here
-    clearCart();
-    alert("Payment successful!");
-    router.push('/housing');
+  const handleConfirmBooking = async () => {
+    try {
+      for (const booking of cart) {
+        const bookingData = { ...booking } as Partial<typeof booking>;
+        delete bookingData.id; // Remove the id field before saving to Firestore
+
+        await addDoc(collection(db, "bookings"), bookingData);
+
+        // Calculate booking dates
+        const bookingDates: string[] = [];
+        const currentDate = new Date(booking.startDate);
+        const endDate = new Date(booking.endDate);
+        while (currentDate <= endDate) {
+          bookingDates.push(currentDate.toISOString().split('T')[0]);
+          currentDate.setDate(currentDate.getDate() + 1);
+        }
+
+        // Update housing availability
+        const housingRef = doc(db, "housing", booking.housingId);
+        const housingDoc = await getDoc(housingRef);
+        if (housingDoc.exists()) {
+          const housingData = housingDoc.data();
+          const updatedAvailability = [
+            ...housingData.availability,
+            ...bookingDates.map(date => ({ date, available: false }))
+          ];
+
+          await updateDoc(housingRef, { availability: updatedAvailability });
+        }
+      }
+
+      clearCart();
+      alert("Booking confirmed!");
+      router.push('/profile');
+    } catch (error) {
+      console.error("Error confirming booking:", error);
+      alert("Failed to confirm booking.");
+    }
   };
 
   if (cart.length === 0) {
@@ -32,8 +67,8 @@ const CheckoutPage = () => {
           </li>
         ))}
       </ul>
-      <button onClick={handlePayment} className="bg-primary text-white px-4 py-3 rounded-lg w-full font-semibold hover:opacity-80 mt-5">
-        Pay
+      <button onClick={handleConfirmBooking} className="bg-primary text-white px-4 py-3 rounded-lg w-full font-semibold hover:opacity-80 mt-5">
+        Confirm Booking
       </button>
     </div>
   );

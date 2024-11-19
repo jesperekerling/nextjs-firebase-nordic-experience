@@ -1,28 +1,50 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../../../firebase/firebaseConfig";
-import Link from 'next/link';
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { Booking } from "@/types/bookings";
+import Link from 'next/link';
 
-const UserBookingsPage = () => {
+const ProfilePage = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchBookings = async () => {
-      const userId = "currentUserId"; // Replace with the actual user ID
-      const bookingsCollection = collection(db, "bookings");
-      const q = query(bookingsCollection, where("userId", "==", userId));
-      const bookingsSnapshot = await getDocs(q);
-      const bookingsData = bookingsSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Booking[];
-      setBookings(bookingsData);
-    };
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        setUserId(user.uid);
+        fetchBookings(user.uid);
+      } else {
+        setUserId(null);
+        setBookings([]);
+      }
+      setLoading(false);
+    });
 
-    fetchBookings();
+    return () => unsubscribe();
   }, []);
+
+  const fetchBookings = async (userId: string) => {
+    const bookingsCollection = collection(db, "bookings");
+    const q = query(bookingsCollection, where("userId", "==", userId));
+    const bookingsSnapshot = await getDocs(q);
+    const bookingsData = bookingsSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    })) as Booking[];
+    setBookings(bookingsData);
+  };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!userId) {
+    return <div>Please log in to view your bookings.</div>;
+  }
 
   if (bookings.length === 0) {
     return <div>No bookings found.</div>;
@@ -49,4 +71,4 @@ const UserBookingsPage = () => {
   );
 };
 
-export default UserBookingsPage;
+export default ProfilePage;

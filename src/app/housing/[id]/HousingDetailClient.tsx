@@ -8,8 +8,7 @@ import { Booking } from "@/types/bookings";
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { useRouter } from 'next/navigation';
-import { collection, addDoc, updateDoc, doc } from "firebase/firestore";
-import { db } from "../../../../firebase/firebaseConfig";
+import { useCart } from '@/context/CartContext';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 interface HousingDetailClientProps {
@@ -26,6 +25,7 @@ const HousingDetailClient: React.FC<HousingDetailClientProps> = ({ housing }) =>
   const [guests, setGuests] = useState<number>(1);
   const [userId, setUserId] = useState<string | null>(null);
   const router = useRouter();
+  const { addToCart } = useCart();
 
   useEffect(() => {
     const auth = getAuth();
@@ -63,7 +63,7 @@ const HousingDetailClient: React.FC<HousingDetailClientProps> = ({ housing }) =>
     setEndDate(end || undefined);
   };
 
-  const handleBooking = async () => {
+  const handleBooking = () => {
     if (!startDate || !endDate) {
       alert("Please select travel dates.");
       return;
@@ -92,33 +92,17 @@ const HousingDetailClient: React.FC<HousingDetailClientProps> = ({ housing }) =>
       return;
     }
 
-    try {
-      const bookingData: Omit<Booking, 'id'> = {
-        housingId: housing.id,
-        userId: userId, // Use the authenticated user's ID
-        startDate: startDate.toISOString(),
-        endDate: endDate.toISOString(),
-        guests,
-        totalPrice: bookingDates.length * housing.pricePerNight,
-      };
+    const bookingData: Omit<Booking, 'id'> = {
+      housingId: housing.id,
+      userId: userId, // Use the authenticated user's ID
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+      guests,
+      totalPrice: bookingDates.length * housing.pricePerNight,
+    };
 
-      await addDoc(collection(db, "bookings"), bookingData);
-
-      // Update housing availability
-      const updatedAvailability = [
-        ...housing.availability,
-        ...bookingDates.map(date => ({ date, available: false }))
-      ];
-
-      const housingRef = doc(db, "housing", housing.id);
-      await updateDoc(housingRef, { availability: updatedAvailability });
-
-      alert("Booking successful!");
-      router.push("/checkout");
-    } catch (error) {
-      console.error("Error booking housing:", error);
-      alert("Failed to book housing.");
-    }
+    addToCart({ ...bookingData, id: '' }); // Add the booking to the cart
+    router.push("/checkout"); // Navigate to the checkout page
   };
 
   const isDateUnavailable = (date: Date) => {
@@ -196,7 +180,7 @@ const HousingDetailClient: React.FC<HousingDetailClientProps> = ({ housing }) =>
           </div>
         </Modal>
       )}
-      
+
       <div className="col-span-4 md:col-span-2">
         <div className="flex gap-5 pb-5 p-3 rounded">
           <div>
@@ -231,16 +215,15 @@ const HousingDetailClient: React.FC<HousingDetailClientProps> = ({ housing }) =>
         </div>
       </div>
         
-        <div className="col-span-4 md:col-span-2 pt-3">
-          <button onClick={handleBooking} className="bg-primary text-white px-4 py-3 rounded-lg w-full font-semibold hover:opacity-80">
-            Book now
-          </button>
-          <div className="flex pt-5">
-            <p className="text-lg font-semibold pb-3">Total Amount: ${calculateTotalAmount()}</p>
-            <p className="text-black dark:text-white block flex-1 text-right md:text-right font-semibold text-lg">${housing?.pricePerNight} per night</p>
-          </div>
-
+      <div className="col-span-4 md:col-span-2 pt-3">
+        <button onClick={handleBooking} className="bg-primary text-white px-4 py-3 rounded-lg w-full font-semibold hover:opacity-80">
+          Book now
+        </button>
+        <div className="flex pt-5">
+          <p className="text-lg font-semibold pb-3">Total Amount: ${calculateTotalAmount()}</p>
+          <p className="text-black dark:text-white block flex-1 text-right md:text-right font-semibold text-lg">${housing?.pricePerNight} per night</p>
         </div>
+      </div>
     </div>
   );
 };

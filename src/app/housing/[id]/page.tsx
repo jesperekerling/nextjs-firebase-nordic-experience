@@ -74,8 +74,6 @@ const HousingDetailPage = async ({ params }: { params: Promise<{ id: string }> }
         {/* <p className="text-black dark:text-white block mt-7 md:mt-auto flex-auto text-center md:text-right font-semibold px-1 m-2 text-lg">${housing?.pricePerNight} per night</p> */}
       </div>
       <p className="text-md md:text-lg flex-auto pb-5">{housing?.description}</p>
-      
-      
       <h2 className="text-xl md:text-2xl font-bold mt-7 md:mt-10 mb-5">Location</h2>
       <p className="pb-5">{housing?.address}</p>
       <GoogleMaps lat={lat} lng={lng} />
