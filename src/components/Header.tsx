@@ -30,7 +30,7 @@ const Header = () => {
           </svg>
         <span className='pl-3 font-bold'>Nordic<br />Experience</span>
       </Link>
-      <nav className="fixed bottom-0 left-0 right-0 z-50 md:z-0 bg-white md:relative md:bg-transparent grow">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 md:z-0 bg-white dark:bg-black md:relative md:bg-transparent grow">
         <ul className="flex flex-wrap place-content-evenly md:place-content-center md:text-center md:gap-5 py-3 md:py-0 px-2">
           <li className="w-1/4 md:w-auto">
             <Link href="/" className={`text-sm md:text-base hover:opacity-70 flex flex-col items-center md:inline flex-1 ${isActive('/') ? 'font-bold' : ''}`}>
