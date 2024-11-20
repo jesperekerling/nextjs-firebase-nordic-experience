@@ -41,7 +41,7 @@ const Filter: React.FC<FilterProps> = ({ onCityChange, onDateChange, onGuestsCha
   };
 
   return (
-    <div className="filter flex flex-wrap gap-4 mb-4 bg-secondary py-7 px-5">
+    <div className="filter flex flex-wrap gap-4 mb-4 bg-secondary py-7 px-5 justify-center text-xs md:text-base">
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
         <select

@@ -24,7 +24,6 @@ const HousingList = async () => {
     <div className="pb-20 font-[family-name:var(--font-geist-sans)]">
       <section className="text-center">
         <h1 className="text-2xl font-bold">Housing</h1>
-        <p className="text-grey2 dark:text-gray-200 py-3">Select a housing option from our list. (optional)</p>
       </section>
       <section className="mt-8">
         {error ? (

@@ -101,9 +101,11 @@ const ProfilePage = () => {
                     <p>End Date: {new Date(booking.endDate).toLocaleDateString()}</p>
                     <p>Guests: {booking.guests}</p>
                     <p>Total Price: ${booking.totalPrice}</p>
-                    <Link href={`/housing/${booking.housingId}`} className="bg-primary text-white px-3 py-2 rounded hover:opacity-75">
-                      View Housing
-                    </Link>
+                    <p className="py-3">
+                      <Link href={`/housing/${booking.housingId}`} className="bg-primary text-white px-3 py-2 rounded hover:opacity-75 text-sm">
+                        View Housing
+                      </Link>
+                      </p>
                   </div>
                 </div>
               </li>
@@ -127,9 +129,11 @@ const ProfilePage = () => {
                     <p>End Date: {new Date(booking.endDate).toLocaleDateString()}</p>
                     <p>Guests: {booking.guests}</p>
                     <p>Total Price: ${booking.totalPrice}</p>
-                    <Link href={`/packages/${booking.packageId}`} className="bg-primary text-white px-3 py-2 rounded hover:opacity-75">
-                      View Package
-                    </Link>
+                    <p className="py-3">
+                      <Link href={`/packages/${booking.packageId}`} className="bg-primary text-white px-3 py-2 rounded hover:opacity-75 text-sm">
+                        View Package
+                      </Link>
+                    </p>
                   </div>
                 </div>
               </li>
