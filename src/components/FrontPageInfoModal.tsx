@@ -20,13 +20,9 @@ function FrontPageInfoModal() {
 
   return (
     <div>
-        <p className="text-grey2 py-3 dark:text-gray-200">Ready to go packages</p>
-    <p>
-      <button onClick={handleOpenModal} className="text-primary font-semibold bg-primary px-5 py-2 text-xs text-white rounded-3xl hover:opacity-80">
-        Learn more
-      </button>
-    </p>
-    
+        <p onClick={handleOpenModal} className="text-grey2 py-3 dark:text-gray-200 text-sm cursor-pointer">
+          Learn more
+        </p>
       <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
         <div className="p-10">
           <h2 className="text-xl font-bold pb-4 dark:text-black">Ready to go travel packages</h2>

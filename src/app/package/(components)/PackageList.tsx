@@ -35,6 +35,19 @@ const PackageList: React.FC<PackageListProps> = ({ packages = [], selectedCatego
     <div className="md:w-full">
       <div className="py-2 overflow-x-auto hide-scrollbar">
         <div className="flex flex-nowrap">
+          <select
+            value={selectedCity || ''}
+            onChange={(e) => setSelectedCity(e.target.value || null)}
+            className="block md:inline border-black rounded-md px-3 py-2 m-2 text-sm text-black"
+            aria-label="Select a city"
+          >
+            <option value="">All Cities</option>
+            {cities.map((city) => (
+              <option key={city} value={city}>
+                {city}
+              </option>
+            ))}
+          </select>
           <button
             onClick={() => setSelectedCategory(null)}
             className={`px-3 font-semibold text-sm py-2 m-2 rounded-lg ${selectedCategory === null ? 'bg-primary text-white' : 'bg-secondary text-gray-700'}`}
@@ -51,21 +64,6 @@ const PackageList: React.FC<PackageListProps> = ({ packages = [], selectedCatego
             </button>
           ))}
         </div>
-      </div>
-      <div className="py-2">
-        <select
-          value={selectedCity || ''}
-          onChange={(e) => setSelectedCity(e.target.value || null)}
-          className="border-black rounded-md px-3 py-2 m-2 text-sm text-black"
-          aria-label="Select a city"
-        >
-          <option value="">All Cities</option>
-          {cities.map((city) => (
-            <option key={city} value={city}>
-              {city}
-            </option>
-          ))}
-        </select>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
         {filteredPackages && filteredPackages.length > 0 ? (

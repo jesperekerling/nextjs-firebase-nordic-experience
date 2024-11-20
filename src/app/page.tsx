@@ -29,7 +29,7 @@ const FrontPage = async ({ searchParams }: { searchParams: Promise<SearchParams>
   return (
     <div className="pb-20 font-[family-name:var(--font-geist-sans)]">
       <section className="text-center">
-        <h1 className="text-2xl font-bold">Packages</h1>
+        <h1 className="text-2xl font-bold">Travel Packages</h1>
         <FrontPageInfoModal />
       </section>
       <section className="mt-8">
