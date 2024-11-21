@@ -117,7 +117,7 @@ const ProfilePage = () => {
                 <div className="flex gap-5">
                   <div>
                     {pkg && pkg.images && pkg.images.length > 0 && (
-                      <Link href={`/packages/${booking.packageId}`} className="rounded hover:opacity-75">
+                      <Link href={`/package/${booking.packageId}`} className="rounded hover:opacity-75">
                         <Image src={pkg.images[0]} alt={pkg.name} width={300} height={300} className="object-cover aspect-square rounded" />
                       </Link>
                     )}
@@ -130,7 +130,7 @@ const ProfilePage = () => {
                     <p>Guests: {booking.guests}</p>
                     <p>Total Price: ${booking.totalPrice}</p>
                     <p className="py-3">
-                      <Link href={`/packages/${booking.packageId}`} className="bg-primary text-white px-3 py-2 rounded hover:opacity-75 text-sm">
+                      <Link href={`/package/${booking.packageId}`} className="bg-primary text-white px-3 py-2 rounded hover:opacity-75 text-sm">
                         View Package
                       </Link>
                     </p>
