@@ -56,7 +56,7 @@ const Header = () => {
               </svg>
               Cart
               {cart.length > 0 && (
-                <span className="absolute -top-2 -right-2 bg-primary text-white rounded-full h-5 w-5 flex items-center justify-center text-xs">
+                <span className="absolute -top-2 right-4 md:-right-3 bg-primary text-white rounded-full h-4 w-4 flex items-center justify-center text-xs font-bold">
                   {cart.length}
                 </span>
               )}
