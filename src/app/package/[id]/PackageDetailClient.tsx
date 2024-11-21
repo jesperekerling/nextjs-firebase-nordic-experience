@@ -8,6 +8,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { useCart } from '@/context/CartContext';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import toast from 'react-hot-toast';
 
 interface PackageDetailClientProps {
   packageDetail: PackageBooking;
@@ -67,7 +68,7 @@ const PackageDetailClient: React.FC<PackageDetailClientProps> = ({ packageDetail
 
   const handleBooking = () => {
     if (!startDate || !endDate) {
-      alert("Please select travel dates.");
+      toast.error("Please select travel dates.");
       return;
     }
 
@@ -78,8 +79,7 @@ const PackageDetailClient: React.FC<PackageDetailClientProps> = ({ packageDetail
       currentDate.setDate(currentDate.getDate() + 1);
     }
 
-    console.log("Selected Dates:", bookingDates);
-
+    
     const bookingData: Omit<PackageBooking, 'id'> = {
       packageId: packageDetail.id,
       userId: userId || "guest", // Use "guest" if the user is not logged in
@@ -93,7 +93,8 @@ const PackageDetailClient: React.FC<PackageDetailClientProps> = ({ packageDetail
     };
 
     addToCart({ ...bookingData, id: '' }); // Add the booking to the cart
-    alert("Booking added to cart!");
+    
+    toast.error("Booking added to cart!");
   };
 
   const calculateTotalAmount = () => {

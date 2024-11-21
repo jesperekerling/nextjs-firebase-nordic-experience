@@ -9,6 +9,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { useCart } from '@/context/CartContext';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import toast from 'react-hot-toast';
 
 interface HousingDetailClientProps {
   housing: Housing;
@@ -63,7 +64,7 @@ const HousingDetailClient: React.FC<HousingDetailClientProps> = ({ housing }) =>
 
   const handleBooking = () => {
     if (!startDate || !endDate) {
-      alert("Please select travel dates.");
+      toast("Please select travel dates.");
       return;
     }
 
@@ -74,14 +75,11 @@ const HousingDetailClient: React.FC<HousingDetailClientProps> = ({ housing }) =>
       currentDate.setDate(currentDate.getDate() + 1);
     }
 
-    console.log("Selected Dates:", bookingDates);
-    console.log("Housing Availability:", housing.availability);
-
     const unavailableDates = housing.availability.filter(avail => !avail.available).map(avail => avail.date);
     const isAvailable = bookingDates.every(date => !unavailableDates.includes(date));
 
     if (!isAvailable) {
-      alert("Some of the selected dates are not available.");
+      toast("Some of the selected dates are not available.");
       return;
     }
 
@@ -95,7 +93,7 @@ const HousingDetailClient: React.FC<HousingDetailClientProps> = ({ housing }) =>
     );
 
     if (isAlreadyInCart) {
-      alert("These dates are already in the cart.");
+      toast("These dates are already in the cart.");
       return;
     }
 
@@ -109,7 +107,7 @@ const HousingDetailClient: React.FC<HousingDetailClientProps> = ({ housing }) =>
     };
 
     addToCart({ ...bookingData, id: '' }); // Add the booking to the cart
-    alert("Booking added to cart!");
+    toast.success("Booking added to cart!");
   };
 
   const isDateUnavailable = (date: Date) => {

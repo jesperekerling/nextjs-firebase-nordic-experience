@@ -5,6 +5,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { CartProvider } from '@/context/CartContext';
 import AuthProviderClient from "../components/AuthProviderClient";
+import { Toaster } from 'react-hot-toast';
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -34,6 +35,7 @@ export default function RootLayout({
               {children}
             </main>
             <Footer />
+            <Toaster position="top-right" reverseOrder={false} />
           </CartProvider>
         </AuthProviderClient>
       </body>
