@@ -94,7 +94,7 @@ const PackageDetailClient: React.FC<PackageDetailClientProps> = ({ packageDetail
 
     addToCart({ ...bookingData, id: '' }); // Add the booking to the cart
     
-    toast.error("Booking added to cart!");
+    toast.success("Booking added to cart!");
   };
 
   const calculateTotalAmount = () => {

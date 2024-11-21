@@ -9,6 +9,7 @@ import { Housing } from "@/types/housing";
 import { Package } from "@/types/package";
 import Image from 'next/image';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 
 const CheckoutPage = () => {
   const router = useRouter();
@@ -58,7 +59,7 @@ const CheckoutPage = () => {
 
   const handleConfirmBooking = async () => {
     if (!userId) {
-      alert("Please log in to confirm your order.");
+      toast("Please log in to confirm your order.");
       router.push('/login');
       return;
     }
@@ -96,11 +97,11 @@ const CheckoutPage = () => {
       }
 
       clearCart();
-      alert("Booking confirmed!");
+      toast.success("Booking confirmed!");
       router.push('/profile');
     } catch (error) {
       console.error("Error confirming booking:", error);
-      alert("Failed to confirm booking.");
+      toast("Failed to confirm booking.");
     }
   };
 
